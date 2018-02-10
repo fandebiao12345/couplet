@@ -1,0 +1,36 @@
+<style lang="less">
+  @import '../common/style/base.less';
+ 
+</style>
+<template>
+  <view class="container">
+    <web-view src="{{url}}"></web-view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class Webview extends wepy.page {
+    config = {
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTextStyle: 'black'
+    }
+    components = {}
+    mixins = []
+    data = {
+      url: ''
+    }
+    computed = {}
+    watch = {}
+    methods = {
+    }
+    events = {}
+    onLoad(options) {
+      const {url} = options
+      console.log(url)
+      this.url = url
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+  }
+</script>

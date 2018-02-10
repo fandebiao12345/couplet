@@ -1,0 +1,385 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: #f5f5f7;
+    .order {
+      .address {
+        background: #fff;
+        .address-info {
+          padding: 0 20rpx;
+          display: flex;
+          padding-top: 20rpx;
+          padding-bottom: 12rpx;
+          .icon-address {
+            flex: 0 0 50rpx;
+            .icon {
+              height: 44rpx;
+              width: 36rpx;
+              margin-top: 18rpx;
+            }
+          }
+          .content {
+            flex: 1;
+            .namePhone {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              height: 78rpx;
+              .left {
+                font-size: @middlefontsize;
+                display: flex;
+                .name {
+                  margin-right: 44rpx;
+                }
+              }
+              .icon {
+                width: 22rpx;
+                height: 30rpx;
+              }
+            }
+            .detail {
+              line-height: 48rpx;
+              font-size: @middlefontsize;
+              color: #999999;
+            }
+          }
+        }
+        .no-address {
+          height: 100rpx;
+          padding: 0 20rpx;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .icon {
+            height: 30rpx;
+            width: 18rpx;
+          }
+          .left {
+            display: flex;
+            align-items: center;
+            .icon {
+              height: 42rpx;
+              width: 36rpx;
+            }
+            .text {
+              font-size: @bigfontsize;
+              color: #999999;
+              margin-left: 16rpx;
+            }
+          }
+        }
+      }
+      .good {
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        padding: 20rpx;
+        margin-top: 20rpx;
+        background: #fff;
+        .pic {
+          height: 200rpx;
+          flex: 0 0 200rpx;
+        }
+        .content {
+          flex: 1;
+          margin-left: 48rpx;
+          display: flex;
+          justify-content: space-between;
+          flex-direction: column;
+          .title {
+            line-height: 46rpx;
+            font-size: @middlefontsize;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+          }
+          .describe {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+            line-height: 36rpx;
+            font-size: @smallfontsize;
+            color: #999999;
+            width: 462rpx;
+          }
+          
+        }
+      }
+      .tips {
+        padding: 0 40rpx;
+        margin-top: 42rpx;
+        .tips-item {
+          font-size: @middlefontsize;
+          line-height: 1.5em;
+          color: #999999;
+          &.active{
+            color: @red;
+          }
+        }
+      }
+      .button {
+        height: 88rpx;
+        width: 710rpx;
+        position: fixed;
+        line-height: 88rpx;
+        text-align: center;
+        bottom: 20rpx;
+        left: 20rpx;
+        background: @red;
+        font-size: @bigfontsize;
+        color: #fff;
+        border-radius: 8rpx;
+      }
+    }
+  }
+  .list {
+    background: #fff;
+    padding: 0 20rpx;
+    .item-list {
+      border-top: 1rpx solid #eeeeee;
+      height: 99rpx;
+      color: #000000;
+      .between();
+      font-size: @middlefontsize;
+      .text {
+        color: #999999;
+      }
+      .detail {
+            height: 66rpx;
+            display: flex;
+            width: 450rpx;
+            justify-content: space-between;
+            align-items: center;
+            .left {
+              display: flex;
+              align-items: center;
+              .icon {
+                height: 24rpx;
+                width: 38rpx;
+                margin-right: 6rpx;
+              }
+              .num {
+                font-size: @smallfontsize;
+                font-weight: bold;
+                color: #000000;
+              }
+            }
+            .right {
+              display: flex;
+              align-items: center;
+              .icon {
+                width: 36rpx;
+                height: 36rpx;
+              }
+              .count {
+                margin: 0 28rpx;
+                font-size: @smallfontsize;
+              }
+            }
+          }
+    }
+  }
+</style>
+
+
+<template>
+  <view class="order">
+    <view class="address">
+      <view @tap="navigate" class="address-info" wx:if="{{address.userName}}">
+        <view class="icon-address">
+          <image class="icon" src="../common/image/icon-address.png"></image>
+        </view>
+        <view class="content">
+          <view class="namePhone">
+            <view class="left">
+              <view class="name">{{address.userName}}</view>
+              <view class="phone">{{address.telNumber}}</view>
+            </view>
+            <image class="icon" src="../common/image/arrow-right.png"></image>
+          </view>
+          <view class="detail">{{address.provinceName}}{{address.cityName}}{{address.countyName}}{{address.detailInfo}}</view>
+        </view>
+      </view>
+      <view @tap="navigate" class="no-address" wx:else>
+        <view class="left">
+          <image class="icon" src="../common/image/icon-address.png"></image>
+          <view class="text">请选择收货人信息</view>
+        </view>
+        <image class="icon" src="../common/image/arrow-right.png"></image>
+      </view>
+    </view>
+    <view class="good">
+      <image class="pic" src="{{mainUrl + good.covet}}"></image>
+      <view class="content">
+        <view class="title">{{good.name}}</view>
+        <view class="describe">{{good.describe}}</view>
+        
+      </view>
+    </view>
+    <view class="list">
+      <view class="item-list">
+        <view class="title">兑换数量</view>
+        <view class="detail">
+            <view class="left">
+              <image class="icon" src="../common/image/icon-yb3.png"></image>
+              <view class="num">{{totalMoney}}</view>
+            </view>
+            <view class="right">
+              <image class="icon" hidden="{{count<2}}" @tap="handleDecrease" src="../common/image/icon-decrease.png"></image>
+              <view class="count">{{count}}</view>
+              <image class="icon" @tap="handleAdd" src="../common/image/icon-add.png"></image>
+            </view>
+          </view>
+      </view>
+      <view class="item-list">
+        <view class="title">商品运费</view>
+        <view class="text">全国大部分区域免费包邮</view>
+      </view>
+      <view class="item-list">
+        <view class="title">发货时间</view>
+        <view class="text">预计1-3个工作日发出</view>
+      </view>
+    </view>
+    <view class="tips">
+      <view class="tips-item">兑换须知：</view>
+      <view class="tips-item">提交订单前请确认收货人信息是否完善无误</view>
+      <view class="tips-item active" @tap="toWatchDetail">更多须知</view>
+    </view>
+    <view class="button" @tap="handleSubmit">提交订单</view>
+    <OrderAlert @submit.user="submit" />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl,
+    mainUrl
+  } from '../config'
+  import OrderAlert from '../components/orderAlert'
+  export default class Order extends wepy.page {
+    config = {
+      navigationBarTitleText: '立即兑换',
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTextStyle: 'black'
+    }
+    components = {
+      OrderAlert
+    }
+    mixins = []
+    data = {
+      good: {},
+      mainUrl,
+      sid: 0,
+      address: {},
+      count: 1
+    }
+    computed = {
+      totalMoney() {
+        return this.count * this.good.cimelia
+      }
+    }
+    watch = {}
+    methods = {
+      handleAdd() {
+        this.count = this.count + 1
+      },
+      handleDecrease() {
+        this.count = this.count - 1
+      },
+      handleSubmit() {
+        if (!this.address) {
+          return this.$parent._showModal('请选择收货地址')
+        }
+        this.$invoke('OrderAlert', 'show', {
+          good: this.good,
+          sid: this.sid
+        })
+      },
+      async submit() {
+        let payload = {
+          sid: this.sid,
+          _id: this.good._id,
+          number: this.count,
+          add_id: this.address._id
+        }
+        try {
+          await this._buyGood(payload)
+          wx.showToast({
+            title: '兑换成功'
+          })
+          setTimeout(() => {
+            this.$redirect('./orders')
+          }, 1500);
+        } catch (msg) {
+          this.$parent._showModal(msg)
+        }
+      },
+      navigate() {
+        this.$redirect('./address', {
+          a: 1,
+          good: JSON.stringify(this.good)
+        })
+      },
+      toWatchDetail () {
+        this.$navigate('./rules')
+      }
+    }
+    events = {}
+    async onLoad(options) {
+      let {
+        good,
+        address
+      } = options
+      let sid = wx.getStorageSync('sid')
+      this.sid = sid
+      good = JSON.parse(good)
+      this.good = good
+      if (address) {
+        address = JSON.parse(address)
+        this.address = address
+      } else {
+        let address = await this._getDefaultAddress({
+          sid,
+          default: true
+        })
+        this.address = address
+        this.$apply()
+      }
+    }
+    onReady() {}
+    onShow(e) {}
+    _getDefaultAddress(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/address`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.data.item[0])
+          }
+        } catch (error) {
+          this.$parent._showModal(error)
+        }
+      })
+    }
+    _buyGood(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}shop/reward`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve()
+          } else {
+            reject(res.data.msg)
+          }
+        } catch (error) {}
+      })
+    }
+  }
+</script>

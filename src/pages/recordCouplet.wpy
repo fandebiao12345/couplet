@@ -1,0 +1,240 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    .rob {
+      .main {
+        background: @red;
+        justify-content: space-between;
+        height: 786rpx;
+        .top {
+          width: 100%;
+          .text {
+            color: @yellow;
+            height: 38rpx;
+            line-height: 38rpx;
+            font-size: @middlefontsize;
+          }
+          .content {
+            margin-top: 26rpx;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            .content-item {
+              height: 82rpx;
+              width: 82rpx;
+              margin-right: 10rpx;
+              background: @yellow;
+              color: @red;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              border-radius: 12rpx;
+              font-size: 42rpx;
+              &:last-child {
+                margin: 0;
+              }
+            }
+            .input-item {
+              position: absolute;
+              height: 0;
+              width: 0;
+              z-index: -1;
+              pointer-events: none;
+            }
+          }
+          .tips {
+            line-height: 42rpx;
+            font-size: @smallfontsize;
+            color: #fff;
+            margin-top: 16rpx;
+            letter-spacing: 4rpx;
+            text-align: center;
+            .tips-1{
+              height: 56rpx;
+              line-height: 56rpx;
+              font-size: @smallfontsize;
+            }
+            .tips-2{
+              height: 62rpx;
+              line-height: 62rpx;
+              font-size: @bigfontsize;
+            }
+          }
+          .result {
+            width: 360rpx;
+            letter-spacing: 2rpx;
+            text-align: center;
+            margin-top: 24rpx;
+            .text {
+              color: #fff;
+              font-size: @smallfontsize;
+              height: 42rpx;
+              line-height: 42rpx;
+              margin-bottom: 10rpx;
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class="rob">
+    <view class="container main">
+      <view class="container top">
+        <User :redbag.sync="redbag"></User>
+        <view class="text">发了一个对春联红包，金额随机</view>
+        <view class="content">
+          <view style="width: {{size}}rpx;height: {{size}}rpx" wx:key="{{index}}" wx:for="{{up}}" class="content-item">{{item}}</view>
+        </view>
+        <view class="content">
+          <view style="width: {{size}}rpx;height: {{size}}rpx" wx:key="{{index}}" wx:for="{{down}}" class="content-item">{{item}}</view>
+        </view>
+        <view wx:if="{{redbag.status.id === 1}}" class="tips">
+          <view class="tips-1">红包竟然都被抢完了</view>
+          <view class="tips-2">难道是我低估他们了吗</view>
+        </view>
+        <view wx:else class="tips">
+          <view class="tips-1">红包还没被抢完</view>
+          <view class="tips-2">赶快转发给好友来抢吧</view>
+        </view>
+      </view>
+      <NavBar/>
+    </view>
+    <ListTitle :redbag.sync="redbag" />
+    <repeat for="{{receive}}" key="index" index="index" item="item">
+      <CoupletListItem :showAnswer="true" :item="item" />
+    </repeat>
+    <Footer/>
+    <ShareReward/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import User from '@/components/user'
+  import NavBar from '@/components/navBar'
+  import ListTitle from '@/components/listTitle'
+  import CoupletListItem from '@/components/coupletListItem'
+  import ResultMoney from '@/components/resultMoney'
+  import Toast from 'wepy-com-toast';
+  import Footer from '@/components/footer'
+  import ShareReward from '@/components/shareReward'
+  import {
+    baseUrl, mainUrl
+  } from '../config'
+  export default class RecordCouplet extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管-对联红包',
+      "backgroundColor": "#d95940"
+    }
+    components = {
+      User,
+      NavBar,
+      ListTitle,
+      CoupletListItem,
+      ShareReward,
+      Footer
+    }
+    mixins = []
+    data = {
+      userInfo: {},
+      sid: 0,
+      redbag: {},
+      showAnswer: true,
+      share: {},
+      rid: 0
+    }
+    computed = {
+      up() {
+        if (this.redbag.bless) {
+          return this.redbag.bless.up.split('')
+        } else {
+          return []
+        }
+      },
+      down() {
+        if (this.redbag.bless) {
+          return this.redbag.bless.down.split('')
+        } else {
+          return []
+        }
+      },
+      receive() {
+        if (!this.redbag.receive) {
+          return []
+        }
+        return this.redbag.receive.sort((a, b) => {
+          return a.grap - b.grab
+        })
+      },
+      size() {
+        switch (this.up.length) {
+          case 7:
+            return 70;
+          case 9:
+            return 60;
+          default:
+            return 80
+        }
+      }
+    }
+    watch = {}
+    methods = {}
+    events = {}
+    async onLoad(options) {
+      let userInfo = wx.getStorageSync('userInfo')
+      let sid = wx.getStorageSync('sid')
+      this.userInfo = JSON.parse(userInfo)
+      this.sid = sid
+      const {
+        scene
+      } = options
+      this.rid = scene
+      let redbag = await this._getPacketInfo(scene, sid)
+      this.redbag = redbag
+      let desc = redbag.type.id === 0 ? '普通' : '对联'
+      this.share.imageUrl = mainUrl + '/' + redbag.share.img
+      this.share.title = redbag.user.nickName + '发个一个' + desc + '红包，这个红包可提现到微信'
+      this.share.path = redbag.type.id == 0 ? `pages/robCommon?scene=${scene}` : `pages/rob?scene=${scene}`
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+    _getPacketInfo(_id, sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/scan`,
+            data: {
+              sid,
+              _id
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.redbag)
+          } else {
+            this.$parent._showModal(res.data.msg)
+          }
+        } catch (error) {
+          console.log(error)
+          await this.$parent._isReconnection()
+          this._getPacketInfo(_id, sid)
+        }
+      })
+    }
+    onShareAppMessage() {
+      let self = this
+      return {
+        title: this.share.title,
+        path: this.share.path,
+        imageUrl: this.share.imageUrl,
+        async success () {
+          let integral = await self.$parent.share({sid: self.sid, _id: self.rid})
+          self.$invoke('ShareReward', 'show', {sid: self.sid, integral})
+        }
+      }
+    }
+  }
+</script>

@@ -1,0 +1,43 @@
+<style lang="less">
+@import '../common/style/base.less';
+.footer{
+  height: 140rpx;
+  display: flex;
+  padding: 0 30rpx;
+  justify-content: space-between;
+  align-items: center;
+  .footer-item{
+    font-size: @smallfontsize;
+    color: #003399;
+  }
+}
+</style>
+<template>
+  <view class="footer">
+    <view @tap="navigate" class="footer-item">举报</view>
+    <navigator url="../pages/problems">
+      <view class="footer-item">常见问题</view>
+    </navigator>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class Footer extends wepy.component {
+    props = {
+      rid: String
+    }
+
+    data = {
+      a: 1111
+    }
+
+    watch = {
+    }
+    methods = {
+      navigate () {
+        this.$parent.$navigate('./report', {rid: this.rid})
+      }
+    }
+  }
+</script>

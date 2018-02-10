@@ -1,0 +1,228 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  .orderAlert {
+    position: fixed;
+    background: rgba(0, 0, 0, 0);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    transition: all 0.5s linear;
+    &.active {
+      background: rgba(0, 0, 0, .7);
+    }
+    .content {
+      position: fixed;
+      padding-bottom: 40rpx;
+      width: 616rpx;
+      background: @red;
+      z-index: 1000;
+      border-radius: 20rpx;
+      left: 50%;
+      top: 20%;
+      margin-left: -308rpx;
+      transition: all 0.5s linear;
+      transform: translateY(-1000rpx);
+      &.active {
+        transform: translateY(0);
+      }
+      .userInfo {
+        margin-top: -82rpx;
+        .avatar {
+          box-sizing: border-box;
+          width: 200rpx;
+          height: 200rpx;
+          border-radius: 50%;
+          border: 6rpx solid #ffc50a;
+          margin: 0 auto;
+        }
+        .text {
+          height: 46rpx;
+          line-height: 46rpx;
+          border-radius: 8rpx;
+          font-size: @middlefontsize;
+          margin: -23rpx auto;
+          text-align: center;
+          width: 200rpx;
+          box-sizing: border-box;
+        }
+      }
+      .username {
+        line-height: 114rpx;
+        height: 114rpx;
+        color: #000000;
+        font-weight: bold;
+        font-size: @bigfontsize;
+        margin-bottom: 16rpx;
+        margin-top: 40rpx;
+      }
+      .pic {
+        display: flex;
+        .pic-item {
+          width: 150rpx;
+          margin-right: 5rpx;
+          &:last-child {
+            margin: 0;
+          }
+        }
+      }
+      .title {
+        height: 82rpx;
+        line-height: 82rpx;
+        color: #fff;
+        font-size: @smallfontsize;
+      }
+      .detail {
+        display: flex;
+        width: 100%;
+        .detail-item {
+          border-right: 1rpx solid #cccccc;
+          color: #fff;
+          flex: 1;
+          box-sizing: border-box;
+          padding: 25rpx 0 0 0;
+          &:last-child {
+            border: none;
+          }
+          .num {
+            height: 54rpx;
+            line-height: 54rpx;
+            text-align: center;
+            font-size: @middlefontsize;
+            font-weight: bold;
+          }
+          .title {
+            height: 40rpx;
+            line-height: 40rpx;
+            text-align: center;
+            font-size: @smallfontsize;
+          }
+        }
+      }
+      .main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 112rpx;
+        line-height: 112rpx;
+        font-size: @bestbigfontsize;
+        background: #fff;
+        .icon {
+          height: 30rpx;
+          width: 30rpx;
+        }
+      }
+    }
+    .close{
+      position: fixed;
+      bottom: -120rpx;
+      width: 80rpx;
+      height: 80rpx;
+      left: 50%;
+      margin-left: -40rpx;
+    }
+  }
+</style>
+<template>
+  <view @transitionend="handleTransitionend" wx:if="{{show}}" class="orderAlert {{active?'active':''}}">
+    <view class="content container {{active?'active':''}}">
+      <view class="userInfo">
+        <image class="avatar" src="{{user.avatarUrl}}"></image>
+        <view class="text level-{{user.level.type.id}}">{{user.level.str}}</view>
+      </view>
+      <view class="username">{{user.nickName}}</view>
+      <view class="pic">
+        <image class="pic-item" 
+        mode="widthFix"
+        wx:for="{{levelPic}}" src="{{item}}" wx:key="{{index}}"></image>
+      </view>
+      <view class="title">拥有{{user.level.level}}个{{text}}</view>
+      <view class="detail">
+        <view class="detail-item">
+          <view class="num">{{user.cimelia}}</view>
+          <view class="title">元宝数</view>
+        </view>
+        <view class="detail-item">
+          <view class="num">{{user.integral}}</view>
+          <view class="title">总积分</view>
+        </view>
+        <view class="detail-item">
+          <view class="num">{{user.redbag.send.count}}</view>
+          <view class="title">发包数</view>
+        </view>
+      </view>
+      <image @tap="close" class="close" src="../common/image/close.png"></image>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class IntegralAlert extends wepy.component {
+    data = {
+      show: false,
+      active: false,
+      user: {},
+      levelPic: []
+    }
+    methods = {
+      show(options) {
+        this.show = true
+        const item = options.item
+        this.user = item
+        let level = item.level
+        let levelPic = ['../common/image/level-0.png', '../common/image/level-0.png', '../common/image/level-0.png']
+        levelPic = levelPic.map((item) => {
+          return item = `../common/image/level-${level.type.id}.png`
+        })
+        let ladder = level.level
+        levelPic = levelPic.map((item, index) => {
+          if (index < ladder) {
+            return item = `../common/image/level-${level.type.id}-active.png`
+          } else {
+            return item
+          }
+        })
+        this.levelPic = levelPic
+        
+        this.$apply()
+        setTimeout(() => {
+          this.active = true
+          this.$apply()
+        }, 10)
+      },
+      handleTransitionend() {
+        if (this.active === false) {
+          this.show = false
+        }
+      },
+      close () {
+        this.active = false
+        this.$apply()
+      }
+    }
+    computed = {
+      text () {
+        let text
+        if(!this.user.level){
+          return ''
+        }else{
+          switch (this.user.level.type.id) {
+            case 0:
+              text = '红心'
+              break;
+            case 1:
+              text = '蓝钻'
+              break;
+            case 2:
+              text = '皇冠'
+              break;
+          
+          }
+        }
+        return text
+      }
+    }
+    onLoad() {}
+  }
+</script>

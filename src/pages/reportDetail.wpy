@@ -1,0 +1,181 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  /* pages/report/detail/detail.wxss */
+  page {
+    background: #f1f1f3;
+  }
+  .title {
+    line-height: 90rpx;
+    height: 74rpx;
+    font-size: 30rpx;
+    padding-left: 30rpx;
+    box-sizing: border-box;
+    width: 100%;
+    color: #8f8f91;
+  }
+  .content {
+    box-sizing: border-box;
+    border: 1rpx solid #d9d9d9;
+    padding: 30rpx;
+    width: 100%;
+    background: #fff;
+  }
+  textarea {
+    width: 100%;
+    height: 150rpx;
+  }
+  .text-tips {
+    line-height: 90rpx;
+    text-align: right;
+    color: #b4b4b4;
+    border-bottom: 1rpx solid #d4d4d4;
+  }
+  .photo-text {
+    line-height: 90rpx;
+    font-size: 32rpx;
+    color: #080808;
+    text-align: left;
+  }
+  .pic {
+    width: 158rpx;
+    height: 158rpx;
+  }
+  .submit {
+    background: #1cac19;
+    height: 90rpx;
+    line-height: 90rpx;
+    border-radius: 8rpx;
+    text-align: center;
+    margin-top: 140rpx;
+    width: 680rpx;
+    color: #fff;
+  }
+</style>
+<template>
+  <view class="container">
+    <view class="title">投诉描述</view>
+    <form 
+    report-submit="{{true}}"
+    bindsubmit="submit">
+      <view class="content">
+        <textarea 
+        name="text"
+        maxlength="200" bindinput="onInputText" placeholder='请输入投诉内容' placeholder-style='color: #8f8f91'>
+          </textarea>
+        <view class="text-tips">
+          <text>{{length}}/200</text>
+        </view>
+        <view class="photo-text">
+          证据截图
+        </view>
+        <image @tap='onTapChooseImg' class="pic" src="{{pic?pic:'../common/image/icon-addPic.png'}}"></image>
+      </view>
+      <button form-type="submit" class="submit" >提交</button>
+    </form>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl,
+    mainUrl
+  } from '../config'
+  export default class ReportDetail extends wepy.page {
+    config = {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#db5943',
+      navigationBarTextStyle: 'white',
+      navigationBarTitleText: '举报'
+    }
+    components = {}
+    mixins = []
+    data = {
+      length: 0,
+      pic: '',
+      value: '',
+      pid: 0,
+      index: '',
+      type: '',
+      rid: '',
+      sid: '',
+      item: ''
+    }
+    computed = {}
+    watch = {}
+    methods = {
+      onInputText (e) {
+        this.length = e.detail.cursor
+      },
+      submit (e) {
+        let formId = e.detail.formId
+        this.$parent.postForm_id({sid: this.sid, form_id: formId})
+        const {text} = e.detail.value
+        if(!text){
+          return this.$parent._showModal('请输入投诉原因')
+        }
+        let payload = {sid: this.sid, type: {
+          id: this.type,
+          str: this.item
+        }, content: text}
+        wepy.request({url: `${baseUrl}user/report/add`, data: payload})
+        .then((res) => {
+          wx.showToast({
+            title: '提交成功'
+          })
+          setTimeout(() => {
+            wx.navigateBack({
+              delta: 2
+            })
+          }, 1500);
+        })
+      },
+      onTapChooseImg () {
+        const self = this;
+        wx.chooseImage({
+          count: 1, // 最多可以选择的图片张数，默认9
+          success: function(res){
+            let filepath = res.tempFilePaths[0]
+            wx.showLoading({
+              title: '上传中'
+            })
+            wx.uploadFile({
+              url: `${baseUrl}user/report/upload`,
+              filePath: filepath,
+              name: 'image',
+              fail (err) {
+                console.log(err)
+              },
+              formData: {
+                sid: self.sid
+              },
+              success (res) {
+                let data = JSON.parse(res.data)
+                if(data.code == 1){
+                  self.pic = mainUrl + '/' + data.path
+                  self.$apply()
+                }
+              },
+              complete () {
+                wx.hideLoading()
+              }
+            })
+          }
+        })
+      }
+    }
+    events = {}
+    onLoad(options) {
+      const {
+        type,
+        rid,
+        item
+      } = options
+      this.type = type
+      this.item = item
+      let sid = wx.getStorageSync('sid')
+      this.sid = sid
+    }
+    onReady() {}
+    onShow() {}
+  }
+</script>

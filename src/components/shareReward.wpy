@@ -1,0 +1,119 @@
+<style lang="less">
+@import '../common/style/base.less';
+ .Integration{
+   position: fixed;
+   background: rgba(0,0,0,0);
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   z-index: 999;
+   transition: all 0.5s linear;
+   &.active{
+     background: rgba(0,0,0,.7);
+   }
+   .content{
+     position: fixed;
+     height: 500rpx;
+     width: 616rpx;
+     background: #fff;
+     z-index: 1000;
+     border-radius: 20rpx;
+     left: 50%;
+     top: 50%;
+     margin-left: -308rpx;
+     margin-top: -250rpx;
+     transition: all 0.5s linear;
+     transform: translateY(-1000rpx); 
+     &.active{
+       transform: translateY(0); 
+     }
+     .logo{
+       margin: -104rpx auto 0 auto;
+       width: 290rpx;
+       height: 208rpx;
+     }
+     .title{
+       height: 96rpx;
+       line-height: 96rpx;
+       margin-top: 32rpx;
+       text-align: center;
+       font-size: @bigfontsize;
+     }
+     .main{
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       height: 112rpx;
+       line-height: 112rpx;
+       font-size: @bestbigfontsize;
+       background: #fff;
+       .icon{
+        height: 30rpx;
+        width: 30rpx;
+      }
+     }
+     .button{
+       height: 80rpx;
+       width: 516rpx;
+       line-height: 80rpx;
+       background: #333333;
+       margin: 24rpx auto;
+       border-radius: 8rpx;
+       text-align: center;
+       color: #fff;
+       font-size: @bigfontsize;
+     }
+   }
+ }
+</style>
+<template>
+  <view 
+  @transitionend="handleTransitionend"
+  wx:if="{{show}}" class="Integration {{active?'active':''}}">
+    <view class="content {{active?'active':''}}" >
+      <image class="logo" src="../common/image/icon-logo.png"></image>
+      <view class="title">转发获得积分奖励</view>
+      <view class="main">
+        <view class="num">+{{integral}}</view>
+        <image class="icon"></image>
+      </view>
+      <view class="button" @tap="handleReward">领取奖励</view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class ShareReward extends wepy.component {
+    data = {
+      show: false,
+      active: false,
+      integral: 0,
+      sid: 0
+    }
+    methods = {
+      show (options) {
+        const {sid, integral} = options
+        this.integral = integral
+        this.show = true
+        this.sid = sid
+        setTimeout(() => {
+          this.active = true
+          this.$apply()
+        })
+      },
+      async handleReward () {
+        this.active = false
+        this.$apply()
+      },
+      handleTransitionend () {
+        if(this.active === false){
+          this.show = false
+        }
+      }
+    }
+    onLoad () {
+    }
+  }
+</script>

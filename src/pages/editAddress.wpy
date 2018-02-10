@@ -1,0 +1,205 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page{
+    background: @bghui;
+    .editAddress{
+      .form{
+        background: #fff;
+        width: 750rpx;
+        .input-item{
+          display: flex;
+          background: #fff;
+          padding: 0 25rpx;
+          height: 99rpx;
+          border-top: 1rpx solid @bghui;
+          box-sizing: border-box;
+          align-items: center;
+          font-size: @middlefontsize;
+          color: #555555;
+          .title{
+            flex: 0 0 188rpx;
+          }
+          .input{
+            height: 98rpx;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            .content{
+              align-self: stretch;
+              flex: 1;
+            }
+            .button{
+              flex: 0 0 122rpx;
+            }
+          }
+        }
+      }
+      .wx{
+        height: 80rpx;
+        width: 700rpx;
+        border-radius: 8rpx;
+        background: #09bb07;
+        margin: 44rpx auto;
+        line-height: 80rpx;
+        text-align: center;
+        font-size: @middlefontsize;
+        color: #fff;
+      }
+      .save{
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 88rpx;
+        background: @red;
+        text-align: center;
+        line-height: 100rpx;
+        color: #fff;
+        font-size: @middlefontsize;
+      }
+    }
+  }
+</style>
+<template>
+  <view class="editAddress">
+    <form class="form" bindsubmit="handleSubmit">
+      <view class="input-item">
+        <view class="title">收货人</view>
+        <input 
+        bindinput="inputChange('userName')"
+        value="{{addressInfo.userName}}"
+        name="userName" class="input" placeholder="请输入收货人姓名" />
+      </view>
+      <view class="input-item">
+        <view class="title">联系人</view>
+        <input 
+        bindinput="inputChange('telNumber')"
+        value="{{addressInfo.telNumber}}"
+        name="telNumber" class="input" placeholder="请输入收货人手机号码" />
+      </view>
+      <view class="input-item">
+        <view class="title">所在地区</view>
+        <picker 
+        bindchange="handleRegion"
+        name="region"
+        mode="region" class="input">{{addressInfo.regionInfo?addressInfo.regionInfo: '请选择'}}</picker>
+      </view>
+      <view class="input-item">
+        <view class="title">详细地址</view>
+        <input 
+        bindinput="inputChange('detailInfo')"
+        value="{{addressInfo.detailInfo}}"
+        name="detailInfo" class="input" placeholder="如某小区二号楼二单元" />
+      </view>
+      <button form-type="submit" class="save">保存地址</button> 
+    </form>
+    <view class="wx" @tap="handleChooseAddress">一键获取微信地址</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {baseUrl} from '../config'
+
+  export default class EditAddress extends wepy.page {
+    config = {
+      navigationBarTitleText: '编辑地址',
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTextStyle: 'black'
+    }
+    components = {}
+    mixins = []
+    data = {
+      addressInfo: {
+        region: []
+      },
+      url: 'user/address/add',
+      isDefault: 0
+    }
+    computed = {}
+    watch = {}
+    methods = {
+      handleRegion (e) {
+        const region = e.detail.value
+        const [provinceName, cityName, countyName] = region
+        this.addressInfo = {...this.addressInfo, provinceName, cityName, countyName}
+        this.addressInfo.regionInfo = `${provinceName} ${cityName} ${countyName}`
+        this.$apply()
+      },
+      async handleSubmit (e) {
+        let info = e.detail.value
+        if(this.isDefault == 1){
+          info.default = true
+        }
+        this.addressInfo = {...this.addressInfo, ...info}
+        this.$apply()
+        const {userName, telNumber, provinceName, cityName, countyName, detailInfo} = this.addressInfo
+        if(!userName){
+          return this.$parent._showModal('请填写收货人姓名')
+        }
+        if(!telNumber){
+          return this.$parent._showModal('请填写收货人电话')
+        }
+        if(!provinceName){
+          return this.$parent._showModal('请填写收货人所在省份')
+        }
+        if(!cityName){
+          return this.$parent._showModal('请填写收货人所在城市')
+        }
+        if(!countyName){
+          return this.$parent._showModal('请填写收货人所在区域')
+        }
+        if(!detailInfo){
+          return this.$parent._showModal('请填写收货人详细地址')
+        }
+        await this._addAddress(this.sid, this.addressInfo)
+        wx.navigateBack()
+      },
+      async handleChooseAddress () {
+        let address = await wepy.chooseAddress()
+        const {provinceName, cityName, countyName} = address
+        address.regionInfo = `${provinceName} ${cityName} ${countyName}`
+        this.addressInfo = address
+        this.$apply()
+      },
+      inputChange(key,e){
+        let value = e.detail.value
+        this._inputChange(key, value)
+      }
+    }
+    events = {}
+    onLoad(options) {
+      let isDefault = options.isDefault
+      
+      let userInfo = wx.getStorageSync('userInfo')
+      let sid = wx.getStorageSync('sid')
+      this.userInfo = JSON.parse(userInfo)
+      this.sid = sid
+      const {item} = options
+      if(item){
+        this.addressInfo = JSON.parse(item)
+        this.url = 'user/address/edit'
+      }
+      console.log(isDefault)
+      this.isDefault = isDefault
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+    _addAddress (sid, payload) {
+      return new Promise(async (resolve, reject) => {
+        try{
+          let res = await wepy.request({url: `${baseUrl}${this.url}`, data: {sid, ...payload}})
+          if(res.data.code === 1){
+            resolve()
+          }
+        }catch(error){
+          console.log(error)
+        }
+      })
+    }
+    _inputChange (key, value) {
+      this.addressInfo[key] =value
+      this.$apply()
+    }
+  }
+</script>

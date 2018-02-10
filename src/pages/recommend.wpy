@@ -1,0 +1,286 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    height: 100%;
+    .nofriends {
+      padding-top: 150rpx;
+      box-sizing: border-box;
+      background: @bghui;
+      height: 1026rpx;
+      .cry {
+        width: 180rpx;
+        height: 180rpx;
+      }
+      .text {
+        height: 100rpx;
+        line-height: 100rpx;
+        font-size: @middlefontsize;
+      }
+    }
+    .recommend {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      .main-wrap {
+        flex: 1;
+        height: 1026rpx;
+        .main {
+          padding: 0 20rpx;
+          .group {
+            .group-date {
+              height: 78rpx;
+              padding: 0 86rpx;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              .line {
+                height: 2rpx;
+                width: 150rpx;
+                background: @bghui;
+              }
+              .date {
+                font-size: @smallfontsize;
+                color: @fonthui;
+              }
+            }
+            .group-list {
+              .group-item {
+                height: 104rpx;
+                display: flex;
+                align-items: stretch;
+                justify-content: space-between;
+                margin-bottom: 20rpx;
+                &:last-child {
+                  margin: 0;
+                }
+                .left {
+                  display: flex;
+                  .avatar {
+                    width: 104rpx;
+                    margin-right: 16rpx;
+                    box-sizing: border-box;
+                    border: 2rpx solid #1ca4fc;
+                    border-radius: 8rpx;
+                    height: 104rpx;
+                  }
+                  .info {
+                    height: 104rpx;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    .name {
+                      height: 38rpx;
+                      line-height: 38rpx;
+                      font-size: @smallfontsize;
+                    }
+                    .send {
+                      height: 48rpx;
+                      line-height: 48rpx;
+                      color: @fonthui;
+                      font-size: @smallfontsize;
+                    }
+                  }
+                }
+                .right {
+                  height: 104rpx;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                  .num {
+                    height: 44rpx;
+                    margin-top: 12rpx;
+                    font-size: @middlefontsize;
+                    text-align: right;
+                    line-height: 44rpx;
+                    .unit {
+                      font-size: @smallfontsize;
+                    }
+                  }
+                  .get {
+                    height: 48rpx;
+                    line-height: 48rpx;
+                    color: @fonthui;
+                    font-size: @smallfontsize;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      .share-wrap {
+        height: 180rpx;
+        display: flex;
+        .share {
+          margin: auto;
+          height: 80rpx;
+          border: 2rpx solid @red;
+          line-height: 76rpx;
+          text-align: center;
+          color: @red;
+          width: 390rpx;
+          border-radius: 40rpx;
+        }
+      }
+    }
+  }
+</style>
+<template>
+  <view class="recommend">
+    <view class="nofriends container" wx:if="{{friendsData.length == 0}}"> 
+      <image 
+      mode="widthFix"
+      class="cry" src="../common/image/ku.png"></image>
+      <view class="text">暂时还没有好友</view>
+    </view>
+    <scroll-view 
+    wx:else
+    lower-threshold="{{0}}"
+    bindscrolltolower="handleScrollTolower" scroll-y class="main-wrap">
+      <view class="main">
+        <repeat for="{{friendsData}}" key="index" index="index" item="item">
+          <view class="group">
+            <view class="group-date">
+              <view class="line"></view>
+              <view class="date">{{item[0].date}}</view>
+              <view class="line"></view>
+            </view>
+            <view class="group-list">
+              <repeat for="{{item}}" key="index" index="index" item="item">
+                <view class="group-item">
+                  <view class="left">
+                    <image class="avatar" src="{{item.data.avatarUrl}}"></image>
+                    <view class="info">
+                      <view class="name">{{item.data.nickName}}</view>
+                      <view class="send">共发了{{item.data.redbag.send.count}}个</view>
+                    </view>
+                  </view>
+                  <view class="right">
+                    <view class="num">{{item.data.redbag.grab.count}}<text class="unit">个</text></view>
+                    <view class="get">抢到红包</view>
+                  </view>
+                </view>
+              </repeat>
+            </view>
+          </view>
+        </repeat>
+      </view>
+    </scroll-view>
+    
+    <view class="share-wrap">
+      <button open-type="share" hover-class="none" class="share">邀请好友</button>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl,
+    share_img
+  } from '../config'
+  import moment from 'moment'
+  export default class Recommend extends wepy.page {
+    config = {
+      navigationBarTitleText: '我推荐的人'
+    }
+    components = {}
+    mixins = []
+    data = {
+      sid: 0,
+      list: [],
+      friendsData: []
+    }
+    computed = {
+      page () {
+        return Math.ceil(this.list.length / 10) + 1
+      }
+    }
+    watch = {}
+    methods = {
+      async handleScrollTolower() {
+        let res = await this.getFriends(sid, this.page)
+        if (res.data.code === 1) {
+          let arr = res.data.data.item
+          if(arr.length === 0){
+            return wx.showToast({title: '已无更多记录'})
+          }
+          arr = this.initArr(arr)
+          this.friendsData = arr
+          this.list = [...this.list,...arr]
+          this.$apply()
+        }
+      }
+    }
+    events = {}
+    async onLoad() {
+      let userInfo = wepy.getStorageSync('userInfo')
+      let sid = wepy.getStorageSync('sid')
+      this.userInfo = JSON.parse(userInfo)
+      this.sid = sid
+      let res = await this.getFriends(sid, 1)
+      if (res.data.code === 1) {
+        let arr = res.data.data.item
+        arr = this.initArr(arr)
+        this.friendsData = arr
+        this.list = [...this.list,...arr]
+        this.$apply()
+      }
+    }
+    onReady() {}
+    onShow() {}
+    getFriends(sid, page) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/friend`,
+            data: {
+              sid,
+              page
+            }
+          })
+          resolve(res)
+        } catch (error) {
+          console.log(error)
+          this.$parent._showModal('加载失败')
+        }
+      })
+    }
+    initArr(arr) {
+      let tempArr = []
+      let templateArr = arr.map((item) => {
+        item.date = moment(item.inTime * 1000).format('MM月DD日')
+        return item.date
+      })
+      templateArr = new Set(templateArr)
+      templateArr = Array.from(templateArr)
+      templateArr.forEach((item, index) => {
+        tempArr[index] = []
+      })
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < templateArr.length; j++) {
+          if (arr[i].date == templateArr[j])
+            tempArr[j].push(arr[i])
+        }
+      }
+      return tempArr
+    }
+     onShareAppMessage() {
+      let self = this;
+      return {
+        title: `${this.userInfo.nickName}邀请您猜对联抢红包`,
+        path: 'pages/index?u_id=' + this.userInfo._id,
+        imageUrl: share_img,
+        async success() {
+          let integral = await self.$parent.share({
+            sid: self.sid,
+            _id: self.userInfo._id
+          })
+          self.$invoke('ShareReward', 'show', {
+            sid: self.sid,
+            integral
+          })
+        }
+      }
+    }
+  }
+</script>

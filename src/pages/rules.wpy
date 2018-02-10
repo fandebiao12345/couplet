@@ -1,0 +1,56 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page{
+    background: #f5f5f7;
+    
+
+  }
+  .rules{
+    padding: 20rpx;
+  }
+  .list-item{
+    font-size: 30rpx;
+    line-height: 1.5em;
+    margin-bottom: 20rpx;
+  }
+</style>
+<template>
+  <view class="rules">
+    <view wx:for="{{rules}}" class="list-item" wx:key="{{index}}">{{item}}</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class Rules extends wepy.page {
+    config = {
+      navigationBarTitleText: '常见问题',
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTextStyle: 'black'
+    }
+    components = {}
+    mixins = []
+    data = {
+      rules: ['1、请确认收货人信息填写完整并无误，否则请及时联系客服修改信息。',
+      '2、本兑换商城所提供的商品，中国国内大部分地区免费包邮，个别偏远地区需要联系客服支付运费，部分商品退换需要支付来回双向运费。',
+      '3、兑换成功后，商城会在1-3个工作日内为您安排发货，商品发出后，您将会受到服务通知，请留意。',
+      '4、以上商品标识、描述、图片及宣传内容等均由包总管合作商户提供，其真实性、准确性和合法性由信息提供者(合作商户)负责，本站不提供任何保证。',
+      '5、合作商户应严格按照中国境内相关法律法规的规定提供商品的销售及售后服务。',
+      '6、商品兑换成功后，如遇任何商品销售、质量及配送等问题可向合作商户进行咨询，也可联系我们的在线客服为您解答。',
+      '7、唐山共享科技有限公司对兑换商城保留最终解释权。'
+      ]
+    }
+    computed = {}
+    watch = {}
+    methods = {
+    }
+    events = {}
+    onLoad(options) {
+      const {url} = options
+      console.log(url)
+      this.url = url
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+  }
+</script>

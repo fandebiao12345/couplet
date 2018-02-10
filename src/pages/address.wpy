@@ -1,0 +1,256 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: @bghui;
+    .address {
+      background: #fff;
+      margin-bottom: 40rpx;
+      .info-item {
+        display: flex;
+        background: #fff;
+        padding: 0 25rpx;
+        border-bottom: 1rpx solid @bghui;
+        box-sizing: border-box;
+        align-items: center;
+        font-size: @middlefontsize;
+        color: #555555;
+        &.namePhone {
+          justify-content: space-between;
+          height: 106rpx;
+        }
+        .title {
+          flex: 0 0 188rpx;
+        }
+        .input {
+          height: 98rpx;
+          flex: 1;
+          display: flex;
+          align-items: center;
+          text-align: right;
+        }
+      }
+      .detail {
+        padding: 20rpx 25rpx;
+        border-bottom: 1rpx solid @bghui;
+        box-sizing: border-box;
+        line-height: 46rpx;
+        font-size: @middlefontsize;
+        color: #555555;
+        background: #fff;
+      }
+      .menu {
+        padding: 0 25rpx;
+        .between();
+        height: 110rpx;
+        align-items: stretch;
+        font-size: @middlefontsize;
+        .left {
+          display: flex;
+          align-items: center;
+          .icon {
+            font-size: 40rpx;
+            margin-right: 12rpx;
+          }
+        }
+        .right {
+          display: flex;
+          align-items: stretch;
+          .right-item {
+            display: flex;
+            align-items: center;
+            .icon {
+              width: 40rpx;
+              height: 40rpx;
+              margin-right: 16rpx;
+            }
+            &.editor {
+              margin-right: 46rpx;
+            }
+          }
+        }
+      }
+    }
+  }
+  .save {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100rpx;
+    background: @red;
+    text-align: center;
+    line-height: 100rpx;
+    color: #fff;
+    font-size: @middlefontsize;
+  }
+</style>
+<template>
+  <view>
+    <repeat for="{{addressList}}" key="index" index="index" item="item">
+      <view class="address" @tap="navigate({{item}})">
+        <view class="info-item namePhone">
+          <view>收件人：{{item.userName}}</view>
+          <view>{{item.telNumber}}</view>
+        </view>
+        <view class="detail">收货地址：{{item.provinceName}}{{item.cityName}}{{item.countyName}}{{item.detailInfo}}</view>
+        <view class="menu">
+          <view class="left" @tap="handleDefault({{item}})">
+            <text class="icon {{item.default?'icon-select':'icon-noselect'}}"></text>
+            <view>设为默认</view>
+          </view>
+          <view class="right">
+            <view @tap="handleEdit({{item}})" class="editor right-item">
+              <image src="../common/image/icon-edit.png" class="icon"></image>
+              <view class="text">编辑</view>
+            </view>
+            <view @tap="handledelete({{item}})" class="delete right-item">
+              <image src="../common/image/icon-delete.png" class="icon"></image>
+              <view class="text">删除</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </repeat>
+    <navigator url="/pages/editAddress?isDefault={{isDefault}}">
+      <view class="save">添加新地址</view>
+    </navigator>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl
+  } from '../config'
+  export default class Address extends wepy.page {
+    config = {
+      navigationBarTitleText: '收货地址',
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTextStyle: 'black'
+    }
+    components = {}
+    mixins = []
+    data = {
+      userInfo: {},
+      sid: 0,
+      addressList: [],
+      a: 0,
+      good: ''
+    }
+    computed = {
+      page() {
+        return Math.ceil(this.addressList.length / 10) + 1
+      },
+      isDefault () {
+        if(this.addressList.length){
+          return 0
+        }else{
+          return 1
+        }
+      }
+    }
+    watch = {}
+    methods = {
+      async handledelete (item) {
+        await this.$parent.showModalCancek('是否删除地址')
+        await this._deleteAddress(item._id, this.sid)
+        let addressList = await this._getAddressInfo(1, this.sid)
+        this.addressList = addressList
+        this.$apply()
+        this.$parent.showToast('删除成功')
+      },
+      handleEdit (item) {
+        this.$navigate('./editAddress', {item: JSON.stringify(item)})
+      },
+      async handleDefault(item){
+        let address = item
+        if(address.default){
+          return
+        }
+        await this.$parent.showModalCancek('是否将此地址设为默认地址')
+        address.default = true
+        let payload = {sid: this.sid, ...address}
+        await this._EditAddress(payload)
+        this.$parent.showToast('编辑成功')
+        this.addressList = this.addressList.map((item) => {
+          if(item._id == address._id){
+            item.default = true
+          }else{
+            item.default = false
+          }
+          return item
+        })
+        this.$apply()
+
+      },
+      navigate (item) {
+        if(this.a){
+          this.$redirect('./order', {good: this.good, address: JSON.stringify(item)})
+        }
+      }
+    }
+    events = {}
+    onLoad(e) {
+      if(e.good){
+        this.good = e.good
+      }
+      if(e.a){
+        this.a = 1
+      }
+    }
+    onReady() {}
+    async onShow(e) {
+      let userInfo = wx.getStorageSync('userInfo')
+      let sid = wx.getStorageSync('sid')
+      this.userInfo = JSON.parse(userInfo)
+      this.sid = sid
+      let addressList = await this._getAddressInfo(1, sid)
+      this.addressList = addressList
+      this.$apply()
+    }
+    _getAddressInfo(page, sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/address`,
+            data: {
+              page,
+              sid
+            }
+          })
+          if(res.data.code === 1){
+            resolve(res.data.data.item)
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+    }
+    _deleteAddress (_id, sid) {
+      return new Promise (async (resolve, reject) => {
+        try{
+          let res = await wepy.request({url: `${baseUrl}user/address/del`, data: {_id, sid}})
+          if(res.data.code === 1){
+            resolve()
+          }else{
+            this.$parent._showModal(res.data.msg)
+          }
+        }catch(error){
+          this.$parent._showModal('加载失败，请重试')
+        }
+      })
+    }
+    _EditAddress (payload) {
+      return new Promise(async (resolve, reject) => {
+        try{
+          let res = await wepy.request({url: `${baseUrl}user/address/edit`, data: payload})
+          console.log(res)
+          if(res.data.code === 1){
+            resolve()
+          }
+        }catch(error){
+          console.log(error)
+        }
+      })
+    }
+  }
+</script>

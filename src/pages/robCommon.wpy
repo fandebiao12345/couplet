@@ -1,0 +1,408 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    .robCommon {
+      .main {
+        background: @red;
+        height: 786rpx;
+        justify-content: space-between;
+        .top {
+          width: 100%;
+          .text {
+            color: @yellow;
+            height: 38rpx;
+            line-height: 38rpx;
+            font-size: @middlefontsize;
+            text-align: center;
+          }
+          .text-3{
+            height: 52rpx;
+            line-height: 52rpx;
+            font-size: @smallfontsize;
+            color: #fff;
+            margin-top: 24rpx;
+            text-align: center;
+          }
+          .content {
+            margin-top: 30rpx;
+            line-height: 58rpx;
+            font-size: @bigfontsize;
+            color: #fff;
+            text-align: center;
+            padding: 0 72rpx;
+            margin-bottom: 16rpx;
+          }
+          .tips {
+            line-height: 42rpx;
+            font-size: @smallfontsize;
+            color: #fff;
+            width: 270rpx;
+            margin-top: @middlefontsize;
+            letter-spacing: 4rpx;
+            text-align: center;
+          }
+          .result {
+            width: 360rpx;
+            letter-spacing: 2rpx;
+            text-align: center;
+            margin-top: 24rpx;
+            .text {
+              color: #fff;
+              font-size: @smallfontsize;
+              height: 42rpx;
+              line-height: 42rpx;
+              margin-bottom: 16rpx;
+            }
+            .money {
+              font-size: @bestbigfontsize;
+              color: @yellow;
+              height: 86rpx;
+              line-height: 86rpx;
+              font-weight: bold;
+            }
+            .tip {
+              height: 62rpx;
+              line-height: 62rpx;
+              font-size: @smallfontsize;
+              color: @fonthui;
+            }
+          }
+          .nomoney {
+            color: #fff;
+            .icon {
+              height: 120rpx;
+              width: 120rpx;
+            }
+            .text1 {
+              height: 52rpx;
+              line-height: 52rpx;
+              margin-top: 12rpx;
+              font-size: @smallfontsize;
+            }
+            .text2 {
+              height: 66rpx;
+              line-height: 66rpx;
+              font-size: @largerfontsize;
+            }
+          }
+        }
+      }
+      .layout {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, .5);
+        transition: all .5s linear 1s;
+        &.active {
+          background: rgba(0, 0, 0, 0);
+        }
+      }
+      .packet {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        height: 900rpx;
+        width: 660rpx;
+        margin-top: -450rpx;
+        margin-left: -330rpx;
+        border-radius: 12rpx;
+        background: @red;
+        transform: translateY(0);
+        transition: all .5s linear 1s;
+        background-image: url(https://mini.0315678.cn/duilianImg/bg.png);
+        background-size: 100%;
+        background-position: left 550rpx;
+        background-repeat: no-repeat;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        &.active {
+          transform: translateY(-1300rpx);
+        }
+        .avatar {
+          width: 124rpx;
+          height: 124rpx;
+          border: 2rpx solid #fff;
+          border-radius: 50%;
+          margin-top: 68rpx;
+        }
+        .name {
+          height: 60rpx;
+          line-height: 60rpx;
+          color: @yellow;
+          font-size: @middlefontsize;
+          margin-top: 12rpx;
+        }
+        .tip {
+          height: 54rpx;
+          line-height: 54rpx;
+          color: @yellow;
+          font-size: @smallfontsize;
+        }
+        .content {
+          line-height: 48rpx;
+          color: #fff;
+          width: 530rpx;
+          text-align: center;
+          font-size: @bigfontsize;
+          margin-top: 60rpx;
+        }
+        .rob {
+          margin-bottom: 154rpx;
+          height: 184rpx;
+          width: 184rpx;
+        }
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class="robCommon" hidden="{{!canShow}}">
+    <view class="container main">
+      <view class="contianer top">
+        <user :redbag.sync="redbag" />
+        <view class="text">发了一个红包，金额随机</view>
+        <view class="content">{{redbag.bless.up}}</view>
+        <view class="text-3" hidden="{{expire && !redbag.isgrab}}" wx:if="{{showGrab || redbag.isgrab}}">恭喜您抢到了</view>
+        <resultMoney :money.sync="money" hidden="{{expire && !redbag.isgrab}}"  wx:if="{{showGrab || redbag.isgrab}}" />
+        <view wx:if="{{!redbag.isgrab && redbag.status.id===1 && !expire}}" class="nomoney container">
+          <image class="icon" src="../common/image/icon-cry.png"></image>
+          <view class="text1">红包已经被抢完</view>
+          <view class="text2">喊破喉咙都没用啦</view>
+        </view>
+        <view wx:if="{{expire && !redbag.isgrab}}" class="nomoney container">
+          <image class="icon" src="../common/image/icon-cry.png"></image>
+          <view class="text1">红包已过期</view>
+          <view class="text2">喊破喉咙都没用啦</view>
+        </view>
+      </view>
+      <navBar/>
+    </view>
+    <listTitle :redbag.sync="redbag" />
+    <repeat for="{{receive}}" key="index" index="index" item="item">
+      <commonListItem :item.sync="item" />
+    </repeat>
+    <view wx:if="{{showAnimation && !expire}}" class="layout  {{result?'active':null}}"></view>
+    <view wx:if="{{showAnimation && !expire}}" class="packet container {{result?'active':null}}">
+      <view class="container">
+        <image class="avatar" src="{{redbag.user.avatarUrl}}"></image>
+        <view class="name">{{redbag.user.nickName}}</view>
+        <view class="tip">发了一个红包，金额随机，可提现到微信</view>
+        <view class="content">{{redbag.bless.up}}</view>
+      </view>
+      <image animation="{{animationData}}" @tap="handleRob" src="../common/image/kai.png" class="rob">开</image>
+    </view>
+    <Footer :rid.sync="rid" />
+    <integration/>
+    <ShareReward/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import User from '@/components/user'
+  import NavBar from '@/components/navBar'
+  import ListTitle from '@/components/listTitle'
+  import Footer from '@/components/footer'
+  import CoupletListItem from '@/components/coupletListItem'
+  import CommonListItem from '@/components/commonListItem'
+  import ResultMoney from '@/components/resultMoney'
+  import Toast from 'wepy-com-toast'
+  import Integration from '@/components/integration'
+  import ShareReward from '@/components/shareReward'
+  import moment from 'moment'
+
+  import {
+    baseUrl,mainUrl
+  } from '../config'
+  export default class RobCommon extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管-普通红包',
+      "backgroundColor": "#d95940"
+    }
+    components = {
+      user: User,
+      navBar: NavBar,
+      listTitle: ListTitle,
+      commonListItem: CommonListItem,
+      toast: Toast,
+      resultMoney: ResultMoney,
+      integration: Integration,
+      ShareReward,
+      Footer
+    }
+    mixins = []
+    data = {
+      focus: false,
+      text: '',
+      result: false,
+      animationData: null,
+      redbag: {},
+      canShow: false,
+      rid: '',
+      sid: 0,
+      showGrab: true,
+      showAnimation: true,
+      share: {}
+    }
+    computed = {
+      receive() {
+        if (!this.redbag.receive) {
+          return []
+        }
+        return this.redbag.receive.sort((a, b) => {
+          return a.grap - b.grab
+        })
+      },
+      money() {
+        if (!this.redbag.isgrab) {
+          return 0.00
+        } else {
+          let money
+          this.redbag.receive.forEach((item) => {
+            if (item.user._id === this.redbag.uid) {
+              money = (item.grab / 100).toFixed(2)
+            }
+          })
+          return money
+        }
+      },
+      expire () {
+        if(this.redbag.expire){
+          let lastDate = this.redbag.expire + this.redbag.inTime
+          let nowDate = Date.now() / 1000
+          return lastDate < nowDate
+        }
+        return false
+      }
+    }
+    watch = {}
+    methods = {
+      async handleRob() {
+        let code = await this._grabPacket(this.sid, this.rid)
+        let redbag
+        if (code === 1) {
+          redbag = await this._getPacketInfo(this.rid, this.sid)
+          this.redbag = redbag
+          this.$apply()
+        } else {
+          redbag = await this._getPacketInfo(this.rid, this.sid)
+        }
+        const animation = wx.createAnimation({
+          transformOrigin: "50% 50%",
+          duration: 1000,
+          timingFunction: "linear",
+          delay: 0
+        })
+        animation.rotateY(360).step()
+        this.animationData = animation.export()
+        this.result = true;
+        this.redbag = redbag
+        if (redbag.status.id === 1) {
+          this.showGrab = false
+        }
+        this.$apply()
+        setTimeout(() => {
+          this.showAnimation = false
+          this.$apply()
+        }, 1500);
+      }
+    }
+    events = {}
+    async onLoad(options) {
+      const {
+        scene
+      } = options
+      let {
+        sid,
+        userInfo
+      } = await this.$parent.initUser(`./robCommon`, scene)
+      this.userInfo = userInfo
+      this.rid = scene
+      this.sid = sid
+      this.$parent.share({sid, _id: scene})
+      let data = await this.$parent._getReward({sid})
+      if(data.code === 1){
+        this.$invoke('integration', 'show', {data, sid})
+      }
+      wx.setStorageSync('sid', sid)
+      wx.setStorageSync('userInfo', JSON.stringify(userInfo))
+      // 用户登录结束
+      let redbag = await this._getPacketInfo(scene, sid)
+      this.redbag = redbag
+      
+      let desc = redbag.type.id === 0? '普通' : '对联' 
+      this.share.imageUrl = mainUrl + '/' + redbag.share.img
+      this.share.title = redbag.user.nickName + '发个一个' + desc + '红包，这个红包可提现到微信'
+      this.share.path = redbag.type.id == 0 ? `pages/robCommon?scene=${scene}` : `pages/rob?scene=${scene}`
+
+      if (redbag.status.id === 1 || redbag.isgrab) {
+        this.showGrab = false
+        this.showAnimation = false
+      }
+      this.$apply()
+      this.canShow = true
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {
+    }
+    onShareAppMessage () {
+      let self = this
+      return {
+        title: this.share.title,
+        path: this.share.path,
+        imageUrl: this.share.imageUrl,
+        async success () {
+          let integral = await self.$parent.share({sid: self.sid, _id: self.rid})
+          self.$invoke('ShareReward', 'show', {sid: self.sid, integral})
+        }
+      }
+    }
+    _getPacketInfo(_id, sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/scan`,
+            data: {
+              sid,
+              _id
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.redbag)
+          } else {
+            await this.$parent._isReconnection()
+            this._getPacketInfo(_id, sid)
+          }
+        } catch (error) {
+          await this.$parent._isReconnection()
+          this._getPacketInfo(_id, sid)
+        }
+      })
+    }
+    _grabPacket(sid, _id) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/grab`,
+            data: {
+              sid,
+              _id
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(1)
+          } else {
+            resolve(0)
+          }
+        } catch (error) {
+          this._showModal('加载失败')
+        }
+      })
+    }
+  }
+</script>

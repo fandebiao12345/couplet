@@ -1,0 +1,46 @@
+<style lang="less">
+@import '../common/style/base.less';
+  .user-component {
+    width: 100%;
+    height: 234rpx;
+    background: #d65a45;
+    padding-top: 42rpx;
+    box-sizing: border-box;
+    background: url('https://mini.0315678.cn/red-packet/img/bzg-bg.png');
+    background-size: 750rpx;
+    background-position: left top;
+    background-repeat: no-repeat;
+    .avatar{
+      width: 124rpx;
+      height: 124rpx;
+      border-radius: 50%;
+      box-sizing: border-box;
+      border: 2rpx solid #fff;
+    }
+    .niackName{
+      color: @yellow;
+      font-size: @middlefontsize;
+      height: 46rpx;
+      line-height: 46rpx;
+      height: 46rpx;
+      margin-top: 20rpx;
+    }
+  }
+</style>
+<template>
+  <view class="user-component container">
+    <image class="avatar" src="{{redbag.user.avatarUrl}}"></image>
+    <view class="niackName">{{redbag.user.nickName}}</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class User extends wepy.component {
+    props = {
+      redbag: Object
+    }
+    onLoad () {
+    }
+  }
+</script>

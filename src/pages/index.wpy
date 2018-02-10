@@ -1,0 +1,640 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: #f2f2f2;
+    .index {
+      width: 100%;
+      .navBar {
+        height: 98rpx;
+        background: @red;
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        .navBar-item {
+          flex: 1;
+          text-align: center;
+          height: 88rpx;
+          font-size: 28rpx;
+          line-height: 88rpx;
+          color: #fff;
+          position: relative;
+          .flag {
+            background: #fed406;
+            position: absolute;
+            height: 6rpx;
+            width: 130rpx;
+            left: 50%;
+            margin-left: -65rpx;
+            top: 74rpx;
+          }
+        }
+      }
+    }
+    swiper {
+      .swiper-item {
+        padding-top: 178rpx;
+        height: 100%;
+        box-sizing: border-box;
+        padding-top: 178rpx;
+        background: #f1f1f1;
+        .from-wrapper {
+          background: #fff;
+          width: 710rpx;
+          box-sizing: border-box;
+          padding: 140rpx 64rpx 42rpx 64rpx;
+          margin-top: 80rpx;
+          border-radius: 8rpx;
+          position: relative;
+          box-shadow: 0 -4rpx 8rpx #dedede, 0 4rpx 8rpx #dedede;
+          .avatar {
+            box-sizing: border-box;
+            width: 122rpx;
+            height: 122rpx;
+            border: 6rpx solid #fff;
+            border-radius: 50%;
+            left: 50%;
+            margin-left: -61rpx;
+            position: absolute;
+            top: -61rpx;
+          }
+          .input-item {
+            height: 48rpx;
+            margin-bottom: 50rpx;
+            &:last-child {
+              margin: 0;
+            }
+            .between();
+            font-size: @middlefontsize;
+            .title {
+              flex: 0 0 150rpx;
+              width: 150rpx;
+            }
+            input {
+              border-bottom: 2rpx solid #d9d9d9;
+              flex: 1;
+            }
+          }
+          .tips {
+            height: 134rpx;
+            line-height: 134rpx;
+            text-align: center;
+            font-size: 24rpx;
+            color: #b1b1b1;
+          }
+          .submit {
+            width: 554rpx;
+            height: 90rpx;
+            background: @red;
+            border-radius: 45rpx;
+            font-size: 30rpx;
+            color: #fff;
+            line-height: 90rpx;
+            margin-top: 100rpx;
+          }
+        }
+      }
+      .common {}
+      .couplet {}
+    }
+    .news {
+      position: fixed;
+      top: 98rpx;
+      background: #fff;
+      left: 0;
+      height: 80rpx;
+      right: 0;
+      line-height: 80rpx;
+      font-size: 28rpx;
+      color: @red;
+      padding: 0 20rpx;
+      display: flex;
+      align-items: center;
+      .icon {
+        width: 40rpx;
+        height: 40rpx;
+        flex: 0 0 40rpx;
+        &.icon-left {
+          margin-right: 20rpx;
+        }
+      }
+      .text {
+        flex: 1;
+        margin-right: 20rpx;
+        overflow: hidden;
+        white-space: nowrap;
+        height: 80rpx;
+        .emit-wrap {
+          overflow: hidden;
+          width: 590rpx;
+          height: 80rpx;
+          .emitInner{
+            transform: translateX(590rpx);
+          }
+          .emit-inner {
+            animation: emit 18s linear infinite;
+          }
+        }
+      }
+    }
+    .tabbar {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+  }
+  .need {
+    display: flex;
+    font-size: @lowerSmallFontSize;
+    align-items: center;
+    line-height: 78rpx;
+    height: 78rpx;
+    justify-content: center;
+    .tip {
+      color: @hui-font;
+    }
+  }
+  .need .icon {
+    width: 26rpx;
+    height: 26rpx;
+  }
+  .need .text {
+    margin-left: 20rpx;
+    color: #d95940;
+  }
+  .need .extraMoney {
+    margin-left: 14rpx;
+    color: #999;
+  }
+  @keyframes emit {
+    from{
+      transform: translateX(590rpx)
+    }to{
+      transform: translateX(-2000rpx)
+    }
+  }
+</style>
+
+<template>
+  <view class="index">
+    <view class="navBar">
+      <view @tap="handleSwitch(0)" class="navBar-item">普通红包
+        <view  class="flag"></view>
+      </view>
+     <!--  <view @tap="handleSwitch(1)" class="navBar-item">对联红包
+        <view hidden="{{currentId==0}}" class="flag"></view>
+      </view> -->
+    </view>
+    <swiper bindchange="bindSwiperChange" current="{{currentId}}" duration="{{300}}" style="height: {{clientHeight}}px">
+      <swiper-item>
+        <view class="common swiper-item container">
+          <form report-submit="{{true}}" class="from-wrapper" bindsubmit="handleCommon">
+            <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+            <view>
+              <view class="input-item">
+                <view class="title">赏金(元)</view>
+                <input placeholder-class="placeholder" value="{{common_money ? common_money : ''}}" bindinput="handleMoneyInput('common_money')" name="money" placeholder="填写金额" type="digit">
+              </view>
+              <view class="input-item">
+                <view class="title">数量(个)</view>
+                <input placeholder-class="placeholder" name="count" placeholder="填写数量" type="number">
+              </view>
+              <view class="input-item">
+                <view class="title">祝福语</view>
+                <input placeholder-class="placeholder" 
+                disabled name="bless" 
+                value="{{redbag_config.bless}}"
+                type="text">
+              </view>
+            </view>
+            <button form-type="submit" class="submit">塞钱进红包</button>
+            <view class="need" catchtap='onTapUseBalance'>
+              <image src="../common/image/icon-ok.png" class="icon"></image>
+              <view class="text">优先使用余额支付{{balance_pay_common}}元 <text class="tip">(含￥{{extraMoney_common}}平台服务费)</text></view>
+            </view>
+            <!-- <view class="tips">
+                        
+                      </view> -->
+          </form>
+        </view>
+      </swiper-item>
+      <!-- <swiper-item>
+        <view class="couplet swiper-item container">
+          <form report-submit="{{true}}" class="from-wrapper" bindsubmit="handleCouplet">
+            <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+            <view>
+              <view class="input-item">
+                <view class="title">请出上联</view>
+                <input placeholder-class="placeholder" name="upline" maxlength="{{9}}" placeholder="五个字或七个字对联" type="text" />
+              </view>
+              <view class="input-item">
+                <view class="title">设置下联</view>
+                <input placeholder-class="placeholder" name="downline" maxlength="{{9}}" placeholder="设置对应的正确答案" type="text" />
+              </view>
+              <view class="input-item">
+                <view class="title">赏金(元)</view>
+                <input placeholder-class="placeholder" bindinput="handleMoneyInput('couplet_money')" name="money" placeholder="填写金额" type="digit">
+              </view>
+              <view class="input-item">
+                <view class="title">数量(个)</view>
+                <input placeholder-class="placeholder" name="count" placeholder="填写数量" type="number">
+              </view>
+            </view>
+            <button form-type="submit" class="submit">生成对联红包</button>
+            <view class="need" catchtap='onTapUseBalance'>
+              <image src="../common/image/icon-ok.png" class="icon"></image>
+              <view class="text">优先使用余额支付{{balance_pay_couplet}}元</view>
+              <view class="tip">
+                (含￥{{extraMoney_couplet}}平台服务费)
+              </view>
+            </view>
+          </form>
+        </view>
+      </swiper-item> -->
+    </swiper>
+    <view wx:if="{{showEmit}}" class="news">
+      <image src="../common/image/icon-emit.png" class="icon-left icon"></image>
+      <view class="text">
+        <view class="emit-wrap">
+          <view bindtransitionend="emitanimation" 
+          id="emit" class="emitInner {{emitactive}}">{{redbag_config.notice}}</view>
+        </view>
+      </view>
+      <image @tap="handleClose" src="../common/image/icon-close.png" class="icon-close icon"></image>
+    </view>
+    <view class="tabbar">
+      <tabBar/>
+    </view>
+    <integration/>
+    <ShareReward/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import TabBar from '@/components/tabbar'
+  import Integration from '@/components/integration'
+  import ShareReward from '@/components/shareReward'
+  import {
+    baseUrl,
+    share_img
+  } from '@/config'
+  import {
+    filterMoney
+  } from '../common/js/util'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管 - 发红包'
+    }
+    components = {
+      tabBar: TabBar,
+      integration: Integration,
+      ShareReward
+    }
+    mixins = []
+    data = {
+      clientHeight: 0,
+      currentId: 0,
+      sid: 0,
+      userInfo: {},
+      redbag_config: {},
+      common_money: null,
+      couplet_money: null,
+      showEmit: true,
+      integral: {},
+      emitactive: ''
+    }
+    computed = {
+      extraMoney_common() {
+        let extraMoney_common = this.redbag_config.rate * this.common_money ? Number((this.redbag_config.rate * this.common_money)) : 0
+        return extraMoney_common.toFixed(2)
+      },
+      total_money_common() {
+        return Number(this.common_money * (1 + this.redbag_config.rate)) ? Number(this.common_money * (1 + this.redbag_config.rate)) : 0
+      },
+      balance_pay_common() {
+        if (!Number(this.common_money)) {
+          return '0.00'
+        }
+        if (this.userInfo.money / 100 > this.total_money_common) {
+          return this.total_money_common.toFixed(2)
+        } else {
+          return (this.userInfo.money / 100).toFixed(2)
+        }
+      },
+      extraMoney_couplet() {
+        let extraMoney_couplet = this.redbag_config.rate * this.couplet_money ? Number((this.redbag_config.rate * this.couplet_money)) : 0
+        return extraMoney_couplet.toFixed(2)
+      },
+      total_money_couplet() {
+        return Number(this.couplet_money * (1 + this.redbag_config.rate)) ? Number(this.couplet_money * (1 + this.redbag_config.rate)) : 0
+      },
+      balance_pay_couplet() {
+        if (!Number(this.couplet_money)) {
+          return '0.00'
+        }
+        if (this.userInfo.money / 100 > this.total_money_couplet) {
+          return this.total_money_couplet.toFixed(2)
+        } else {
+          return (this.userInfo.money / 100).toFixed(2)
+        }
+      }
+    }
+    watch = {}
+    methods = {
+      bindSwiperChange(e) {
+        console.log(e)
+        this.currentId = e.detail.current
+      },
+      async handleCommon(e) {
+        this.$parent.postForm_id({
+          sid: this.sid,
+          form_id: e.detail.formId
+        })
+        const packet = e.detail.value
+        const {
+          money,
+          count,
+          bless
+        } = packet
+        if (!money) {
+          return wx.showModal({
+            title: '提示',
+            content: '请输入金额，最低为1元',
+            showCancel: false
+          })
+        }
+        if (!count) {
+          return wx.showModal({
+            title: '提示',
+            content: '请输入红包个数，最低为1个',
+            showCancel: false
+          })
+        }
+        if (!Number.isInteger(Number(count))) {
+          return wx.showModal({
+            title: '提示',
+            content: `红包个数需为整数`,
+            showCancel: false
+          })
+        }
+        if (count < 1 || count > this.redbag_config.bag.count) {
+          return wx.showModal({
+            title: '提示',
+            content: `红包个数最小为1个最大为${this.redbag_config.bag.count}`,
+            showCancel: false
+          })
+        }
+        if (money < 1 || money > this.redbag_config.bag.max) {
+          return wx.showModal({
+            title: '提示',
+            content: `红包个数最小为1个最大为${this.redbag_config.bag.max}`,
+            showCancel: false
+          })
+        }
+        try {
+          let rid = await this._sendCommon(packet, money, this.sid)
+          this.$navigate('./share', {
+            money,
+            rid,
+            path: 'robCommon'
+          })
+        } catch (need) {
+          let code = await this.$parent._login()
+          let sign = await this._getSign(code, need, this.sid)
+          await wepy.requestPayment(sign)
+          await this.payed(this.sid, sign.paySign)
+          let rid = await this._sendCommon(packet, money, this.sid)
+          this.$navigate('./share', {
+            money,
+            rid,
+            path: 'robCommon'
+          })
+        }
+      },
+      async handleCouplet(e) {
+        let packet = e.detail.value
+        const {
+          money,
+          count,
+          upline,
+          downline
+        } = packet
+        const {
+          max
+        } = this.redbag_config.bag
+        const maxCount = this.redbag_config.bag.count
+        if (upline.length !== downline.length || upline == downline) {
+          return this._showModal('上联与下联长度应一致且不得完全重复')
+        }
+        if (!(upline.length === 5 || upline.length === 7 || upline.length === 9)) {
+          return this._showModal('上联与下联长度为5,7,9个字')
+        }
+        if (!Number(money) || !money || money > max || money < 1) {
+          return this._showModal(`请输入正确赏金,最低1元最高${max}元`)
+        }
+        if (!Number(count) || !Number.isInteger(Number(count)) || !count || count > maxCount || count < 1) {
+          return this._showModal(`请输入正确红包数量,最低1个最高${maxCount}个`)
+        }
+        try {
+          let rid = await this._sendCouplet(packet, money, this.sid)
+          this.$navigate('./share', {
+            rid,
+            path: 'rob'
+          })
+        } catch (need) {
+          let code = await this.$parent._login()
+          let sign = await this._getSign(code, need, this.sid)
+          await wepy.requestPayment(sign)
+          await this.payed(this.sid, sign.paySign)
+          let rid = await this._sendCouplet(packet, money, this.sid)
+          this.$navigate('./share', {
+            rid,
+            path: 'rob'
+          })
+        }
+      },
+      handleMoneyInput(key, e) {
+        let value = e.detail.value
+        this[key] = value
+      },
+      handleSwitch(id) {
+        this.currentId = id
+      },
+      handleClose() {
+        this.showEmit = false
+      }
+    }
+    events = {}
+    onLoad(options) {
+      const {
+        scene,
+        u_id
+      } = options
+      wepy.getSystemInfo().then(res => {
+        this.clientHeight = res.windowHeight
+        this.$apply()
+      })
+
+      
+    }
+    onReady() {}
+    // 支付结果轮询
+    payed(sid, sign) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}pay/state`,
+            data: {
+              sid,
+              sign
+            }
+          })
+          if (res.data.code === 1) {
+            resolve()
+          } else {
+            setTimeout(() => {
+              this.payed(sid, sign)
+            }, 1000)
+          }
+        } catch (e) {
+          setTimeout(() => {
+            this.payed(sid, sign)
+          }, 1000)
+        }
+      })
+    }
+    async onShow() {
+      const {
+        sid,
+        userInfo
+      } = await this.$parent.initUser('./index')
+      let redbag_config = await this.$parent._getConfig(sid)
+      redbag_config.bag.max = parseInt(redbag_config.bag.max / 100)
+      this.redbag_config = redbag_config
+      this.userInfo = userInfo
+      this.sid = sid
+      this.$apply()
+      let data = await this.$parent._getReward({
+        sid
+      })
+      if (data.code === 1) {
+        this.$invoke('integration', 'show', {
+          data,
+          sid
+        })
+      }
+      wx.setStorageSync('sid', sid)
+      wx.setStorageSync('userInfo', JSON.stringify(userInfo))
+      // 登录结束
+      setTimeout(() => {
+       this.emitactive = 'emit-inner' 
+       this.$apply()
+      });
+    }
+    
+    _showModal(content) {
+      wx.showModal({
+        title: '提示',
+        content,
+        showCancel: false
+      })
+    }
+    // 获取支付订单
+    _getSign(code, total, sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}pay/sign`,
+            data: {
+              sid,
+              total,
+              code
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.sign)
+          } else {
+            this._showModal(res.data.msg)
+          }
+        } catch (error) {
+          this._showModal('加载失败，请重试')
+        }
+      })
+    }
+    // 发红包请求
+    _sendCouplet(packet, money, sid) {
+      return new Promise(async(resolve, reject) => {
+        let code = await this.$parent._login()
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/couplet`,
+            data: { ...packet,
+              total: money * 100,
+              code,
+              sid: sid,
+              type: {
+                id: 1,
+                str: '对联红包'
+              }
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.rid)
+          } else if (res.data.code === -1) {
+            reject(res.data.need)
+          } else {
+            this.$parent._showModal(res.data.msg)
+          }
+        } catch (error) {
+          this.$parent._showModal('加载失败')
+        }
+      })
+    }
+    _sendCommon(packet, money, sid) {
+      return new Promise(async(resolve, reject) => {
+        let code = await this.$parent._login()
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/plain`,
+            data: { ...packet,
+              total: money * 100,
+              code,
+              sid: sid
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.rid)
+          } else if (res.data.code === -1) {
+            reject(res.data.need)
+          } else {
+            this.$parent._showModal(res.data.msg)
+          }
+        } catch (error) {
+          this.$parent._showModal('加载失败')
+        }
+      })
+    }
+    onShareAppMessage() {
+      let self = this;
+      return {
+        title: `${this.userInfo.nickName}邀请您猜对联抢红包`,
+        path: 'pages/index?u_id=' + this.userInfo._id,
+        imageUrl: share_img,
+        async success() {
+          let integral = await self.$parent.share({
+            sid: self.sid,
+            _id: self.userInfo._id
+          })
+          self.$invoke('ShareReward', 'show', {
+            sid: self.sid,
+            integral
+          })
+        }
+      }
+    }
+  }
+</script>

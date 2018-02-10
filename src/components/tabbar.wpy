@@ -1,0 +1,68 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  .navbar-component {
+    width: 100%;
+    height: 116rpx;
+    display: flex;
+    box-sizing: border-box;
+    justify-content: space-around;
+    background: #fff;
+    border-top: 1rpx solid #f2f2f2;
+    .navbar-item {
+      flex: 1;
+      padding-top: 20rpx;
+      .icon {
+        width: 44rpx;
+        height: 44rpx;
+        margin: 0 auto;
+      }
+      .text {
+        height: 26rpx;
+        line-height: 26rpx;
+        color: @fonthui;
+        text-align: center;
+        font-size: @smallfontsize;
+        margin-top: 4rpx;
+      }
+    }
+  }
+</style>
+<template>
+  <view class="navbar-component">
+    <navigator class="navbar-item" url="./integration">
+      <view>
+        <image class="icon" src="../common/image/icon-jifen.png"></image>
+        <view class="text">积分榜</view>
+      </view>
+    </navigator>
+    <navigator class="navbar-item" open-type="redirect" url="./index" wx:if="{{index}}">
+      <view>
+        <image class="icon" src="../common/image/mine/icon-index.png"></image>
+        <view class="text">发红包</view>
+      </view>
+    </navigator>
+    <navigator class="navbar-item" url="./mine" wx:else>
+      <view>
+        <image class="icon" src="../common/image/icon-tixian.png"></image>
+        <view class="text">余额提现</view>
+      </view>
+    </navigator>
+    <navigator class="navbar-item" url="./cimelia">
+      <view>
+        <image class="icon" src="../common/image/icon-caifu.png"></image>
+        <view class="text">财富榜</view>
+      </view>
+    </navigator>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class TabBar extends wepy.component {
+    props = {
+      index: {
+        type: Boolean,
+        default: false
+      }
+    }
+  }
+</script>

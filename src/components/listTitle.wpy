@@ -1,0 +1,42 @@
+<style lang="less">
+@import '../common/style/base.less';
+.listTitle{
+  width: 100%;
+  height: 75rpx;
+  line-height: 74rpx;
+  border-bottom: 1rpx solid #cccccc;
+  font-size: 28rpx;
+  padding: 0 20rpx;
+  color: #a0a0a0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+</style>
+<template>
+  <view class="listTitle">
+    <view>共{{money}}元，领取{{redbag.grab.count}}/{{redbag.send.count}}个</view>
+    <view>手气排名</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class ListTitle extends wepy.component {
+    props = {
+      redbag: Object
+    }
+    computed = {
+      money () {
+        if(!this.redbag.send){
+          return ''
+        }
+        return (this.redbag.send.total / 100).toFixed(2)
+      }
+    }
+    onLoad () {
+      console.log(this.redbag)
+    }
+  }
+</script>

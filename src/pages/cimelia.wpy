@@ -1,0 +1,234 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: @red;
+    height: 100%;
+    .integration {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      box-sizing: border-box;
+      padding-bottom: 46rpx;
+      align-items: center;
+      .top {
+        .userInfo {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding-top: 60rpx;
+          background: url('https://mini.0315678.cn/red-packet/img/bzg-bg.png');
+          background-size: 750rpx;
+          background-position: left top;
+          background-repeat: no-repeat;
+          .avatar {
+            width: 128rpx;
+            height: 128rpx;
+            box-sizing: border-box;
+            border: 5rpx solid #ffc50a;
+            border-radius: 50%;
+            margin: 0 auto;
+          }
+          .rank {
+            height: 30rpx;
+            line-height: 30rpx;
+            padding: 0 8rpx;
+            font-size: 20rpx;
+            text-align: center;
+            border-radius: 4rpx;
+            margin-top: -15rpx;
+          }
+          .name {
+            height: 98rpx;
+            line-height: 98rpx;
+            font-size: @bigfontsize;
+            color: #fff;
+            font-weight: bold;
+          }
+        }
+        .text {
+          height: 130rpx;
+          line-height: 130rpx;
+          font-size: @middlefontsize;
+          color: #fff;
+        }
+        .pic {
+          width: 330rpx;
+          margin-top: 50rpx;
+          margin-bottom: 30rpx;
+        }
+        .toProblems {
+          height: 58rpx;
+          line-height: 58rpx;
+          color: #fff;
+          font-size: @middlefontsize;
+          margin-bottom: 60rpx;
+          margin-top: 30rpx;
+        }
+        .toRank {
+          height: 62rpx;
+          width: 262rpx;
+          background: #ffc501;
+          line-height: 62rpx;
+          border-radius: 31rpx;
+          color: #fff;
+          text-align: center;
+          font-size: @middlefontsize;
+        }
+        .tips {
+          height: 76rpx;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: @smallfontsize;
+          color: #ffe99d;
+          width: 600rpx;
+          .active {
+            color: #ffc501;
+          }
+        }
+        .text-1 {
+          height: 62prx;
+          line-height: 62rpx;
+          color: #ffe99d;
+          font-size: @smallfontsize;
+        }
+        .num {
+          height: 78rpx;
+          line-height: 78rpx;
+          color: #ffe99d;
+          font-size: @bestbigfontsize;
+          font-weight: bold;
+          margin-bottom: 40rpx;
+        }
+        .text-2 {
+          text-align: center;
+          line-height: 48rpx;
+          font-size: @middlefontsize;
+          color: #ffc501;
+          width: 506rpx;
+        }
+      }
+      .bottom {
+        width: 600rpx;
+        display: flex;
+        .menu-item {
+          height: 102rpx;
+          flex: 1;
+          border-right: 1rpx solid @otherhui;
+          &:last-child {
+            border: none;
+          }
+          .icon {
+            width: 48rpx;
+            height: 48rpx;
+            margin: 8rpx auto 0 auto;
+          }
+          .text {
+            text-align: center;
+            height: 32rpx;
+            margin-top: 14rpx;
+            color: #fff;
+            font-size: @smallfontsize;
+            line-height: 32rpx;
+          }
+        }
+      }
+    }
+  }
+</style>
+<template>
+  <view class="integration">
+    <view class="top container">
+      <view class="userInfo">
+        <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+        <view class="rank level-{{userInfo.level.type.id}}">{{userInfo.level.str}}</view>
+      </view>
+      <image class="pic" mode="widthFix" src="../common/image/yb-bg.png">
+      </image>
+      <view class="text-1">我拥有的元宝数量</view>
+      <view class="num">{{userInfo.cimelia}}</view>
+      <view class="toRank" @tap="watchRank">查看财富排行榜</view>
+      <view class="toProblems" @tap="navigate('./recordReward')">我的元宝奖励记录</view>
+      <view class="text-2">您每发放1元红包，系统奖励1个元宝</view>
+      <view class="text-2">积攒的元宝可以到元宝商城兑换商品</view>
+    </view>
+    <view class="bottom">
+      <view @tap="navigate('./index')" class="menu-item">
+        <image class="icon" src="../common/image/nav-yb.png"></image>
+        <view class="text">发包得元宝</view>
+      </view>
+      <navigator class="menu-item" url="./shop">
+        <view>
+          <image class="icon" src="../common/image/nav-shop.png"></image>
+          <view class="text">去元宝商店</view>
+        </view>
+      </navigator>
+      <button open-type="share" hover-class="none" class="menu-item">
+                  <image class="icon" src="../common/image/nav-jf.png"></image>
+                  <view class="text">分享赚积分</view>
+                </button>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl,
+    share_img
+  } from '../config'
+  export default class Cimelia extends wepy.page {
+    config = {
+      navigationBarTitleText: '我的财富',
+      "backgroundColor": "#d95940"
+    }
+    components = {}
+    mixins = []
+    data = {
+      userInfo: {},
+    }
+    computed = {}
+    watch = {}
+    methods = {
+      navigate(url) {
+        wx.navigateTo({
+          url
+        })
+      },
+      watchRank() {
+        return this.$parent._showModal('等待开发中')
+        wx.navigateTo({
+          url: './rankCimelia',
+        })
+      }
+    }
+    events = {}
+    async onLoad() {
+      let sid = wepy.getStorageSync('sid')
+      let userInfo = await this.$parent._getInfo(sid)
+      this.userInfo = userInfo
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+    onShareAppMessage() {
+      let self = this;
+      return {
+        title: `${this.userInfo.nickName}邀请您猜对联抢红包`,
+        path: 'pages/index?u_id=' + this.userInfo._id,
+        imageUrl: share_img,
+        async success() {
+          let integral = await self.$parent.share({
+            sid: self.sid,
+            _id: self.userInfo._id
+          })
+          self.$invoke('ShareReward', 'show', {
+            sid: self.sid,
+            integral
+          })
+        }
+      }
+    }
+  }
+</script>

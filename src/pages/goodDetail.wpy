@@ -1,0 +1,66 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page{
+    padding-bottom: 100rpx;
+  }
+  .good{
+    width: 100%;
+  }
+  .button{
+    position: fixed;
+    width: 710rpx;
+    bottom: 20rpx;
+    left: 20rpx;
+    height: 100rpx;
+    color: #fff;
+    font-size: @bigfontsize;
+    line-height: 88rpx;
+    text-align: center;
+    background: @red;
+    border-radius: 12rpx;
+  }
+</style>
+<template>
+  <view class="good-detail">
+    <image class="good" 
+    src="{{playbill}}"
+    mode="" mode="widthFix"></image>
+    <view 
+    @tap="toBuy"
+    class="button">立即兑换</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class GoodDetail extends wepy.page {
+    config = {
+      navigationBarTitleText: '商品详情',
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTextStyle: 'black'
+    }
+    components = {}
+    mixins = []
+    data = {
+      playbill: '',
+      good: {}
+    }
+    computed = {}
+    watch = {}
+    methods = {
+      toBuy () {
+        this.$navigate('./order', {good: JSON.stringify(this.good)})
+      }
+    }
+    events = {}
+    onLoad(options) {
+      const {playbill, good} = options
+      this.playbill = playbill
+      this.good = JSON.parse(good)
+    }
+    toBuy () {
+
+    }
+    onReady() {}
+    onShow() {}
+  }
+</script>

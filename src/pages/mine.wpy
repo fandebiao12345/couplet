@@ -1,0 +1,333 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: @bghui;
+    .mine {
+      .part-1 {
+        height: 460rpx;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        padding-top: 60rpx;
+        padding-bottom: 20rpx;
+        box-sizing: border-box;
+        align-items: center;
+        background: #fff;
+        background-image: url('https://mini.0315678.cn/red-packet/img/bzg-bg.png');
+        background-size: 750rpx;
+        background-position: left top;
+        background-repeat: no-repeat;
+        .userInfo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          .avatar {
+            width: 128rpx;
+            height: 128rpx;
+            box-sizing: border-box;
+            border: 5rpx solid #ffc50a;
+            border-radius: 50%;
+            margin: 0 auto;
+          }
+          .rank {
+            height: 30rpx;
+            line-height: 30rpx;
+            padding: 0 8rpx;
+            font-size: 20rpx;
+            text-align: center;
+            border-radius: 4rpx;
+            margin-top: -15rpx;
+          }
+          .name {
+            height: 98rpx;
+            line-height: 98rpx;
+            font-size: @bigfontsize;
+            color: @red;
+            font-weight: bold;
+          }
+        }
+        .menu {
+          align-self: stretch;
+          padding: 0 20rpxl;
+          display: flex;
+          height: 120rpx;
+          .menu-item {
+            flex: 1;
+            border-right: 1rpx solid @bghui;
+            padding-top: 20rpx;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            align-items: center;
+            &:last-child {
+              border: none;
+            }
+            .icon {
+              margin: 0 auto;
+              height: 56rpx;
+              width: 56rpx;
+            }
+            .text {
+              font-size: @smallfontsize;
+              height: 36rpx;
+              line-height: 36rpx;
+            }
+          }
+        }
+      }
+      .part-2 {
+        margin-top: 20rpx;
+        background: #fff;
+        .list-item {
+          border-bottom: 1rpx solid @bghui;
+          height: 98rpx;
+          display: flex;
+          padding: 0 24rpx;
+          justify-content: space-between;
+          align-items: center;
+          position: relative;
+          .kefu {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+          }
+          .left {
+            display: flex;
+            align-items: center;
+            .icon {
+              height: 40rpx;
+              width: 40rpx;
+              margin-right: 16rpx;
+            }
+            .text {
+              font-size: @middlefontsize;
+            }
+          }
+          .right {
+            display: flex;
+            align-items: center;
+            .text {
+              font-size: @middlefontsize;
+              color: @fonthui;
+            }
+            .icon {
+              width: 18rpx;
+              height: 30rpx;
+              margin-left: 12rpx;
+            }
+          }
+        }
+      }
+    }
+  }
+  .tabbar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+</style>
+
+<template>
+  <view class="mine">
+    <view class="part-1">
+      <view class="userInfo">
+        <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+        <view class="rank level-{{userInfo.level.type.id}}">{{userInfo.level.str}}</view>
+        <view class="name">{{userInfo.nickName}}</view>
+      </view>
+      <view class="menu">
+        <view class="menu-item" @tap="navigete('./cimelia')">
+          <image class="icon" src="../common/image/mine/yuanbao.png"></image>
+          <view class="text">我的财富</view>
+        </view>
+        <view class="menu-item" @tap="navigete('./integration')">
+          <image class="icon" src="../common/image/mine/integral.png"></image>
+          <view class="text">我的积分</view>
+        </view>
+        <view class="menu-item" @tap="navigete('./recordReward')">
+          <image class="icon" src="../common/image/mine/icon-reward.png"></image>
+          <view class="text">奖励记录</view>
+        </view>
+        <view class="menu-item" @tap="navigete('./orders')">
+          <image class="icon" src="../common/image/mine/icon-record.png"></image>
+          <view class="text">兑换记录</view>
+        </view>
+      </view>
+    </view>
+    <view class="part-2">
+      <navigator url="/pages/balance">
+        <view class="list-item">
+          <view class="left">
+            <image src="../common/image/mine/icon-balance.png" class="icon"></image>
+            <view class="text">余额提现</view>
+          </view>
+          <view class="right">
+            <view class="text">可提现余额{{balance}}</view>
+            <image src="../common/image/arrow-right.png" class="icon"></image>
+          </view>
+        </view>
+      </navigator>
+      <navigator url="/pages/record">
+        <view class="list-item">
+          <view class="left">
+            <image class="icon" src="../common/image/mine/reward.png"></image>
+            <view class="text">红包记录</view>
+          </view>
+          <view class="right">
+            <view class="text">我发出和我收到的红包</view>
+            <image src="../common/image/arrow-right.png" class="icon"></image>
+          </view>
+        </view>
+      </navigator>
+      <navigator url="/pages/address">
+        <view class="list-item">
+          <view class="left">
+            <image class="icon" src="../common/image/mine/address.png"></image>
+            <view class="text">我的地址</view>
+          </view>
+          <view class="right">
+            <view class="text">设置您的收货地址</view>
+            <image src="../common/image/arrow-right.png" class="icon"></image>
+          </view>
+        </view>
+      </navigator>
+      <navigator url="/pages/problems">
+        <view class="list-item">
+          <view class="left">
+            <image class="icon" src="../common/image/mine/problems.png"></image>
+            <view class="text">常见问题</view>
+          </view>
+          <view class="right">
+            <view class="text">关于小程序的问题</view>
+            <image src="../common/image/arrow-right.png" class="icon"></image>
+          </view>
+        </view>
+      </navigator>
+      <view class="list-item">
+        <view class="left">
+          <image class="icon" src="../common/image/mine/service.png"></image>
+          <view class="text">在线客服</view>
+        </view>
+        <view class="right">
+          <view class="text"></view>
+          <image src="../common/image/arrow-right.png" class="icon"></image>
+        </view>
+        <button open-type="contact" hover-class="none" class="kefu"></button>
+      </view>
+      <navigator url="/pages/recommend">
+        <view class="list-item">
+          <view class="left">
+            <image src="../common/image/mine/friends.png" class="icon"></image>
+            <view class="text">我推荐的好友</view>
+          </view>
+          <view class="right">
+            <view class="text">{{friendsData.count}}</view>
+            <image src="../common/image/arrow-right.png" class="icon"></image>
+          </view>
+        </view>
+      </navigator>
+    </view>
+    <view class="tabbar">
+      <TabBar :index="index" />
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import User from '@/components/user'
+  import {
+    baseUrl,
+    share_img
+  } from '../config'
+  import TabBar from '@/components/tabbar'
+  export default class Mine extends wepy.page {
+    config = {
+      navigationBarTitleText: '我的',
+      "backgroundColor": "#d95940"
+    }
+    components = {
+      user: User,
+      TabBar
+    }
+    mixins = []
+    data = {
+      userInfo: {},
+      sid: 0,
+      friendsData: {
+        count: 0
+      },
+      index: true
+    }
+    computed = {
+      balance() {
+        if (this.userInfo.money) {
+          return (this.userInfo.money / 100).toFixed(2)
+        }
+        return '0.00'
+      }
+    }
+    watch = {}
+    methods = {
+      navigete(path) {
+        this.$navigate(path)
+      }
+    }
+    events = {}
+    async onLoad() {}
+    onReady() {}
+    async onShow() {
+      let userInfo = wepy.getStorageSync('userInfo')
+      let sid = wepy.getStorageSync('sid')
+      this.userInfo = JSON.parse(userInfo)
+      this.sid = sid
+      let res = await this.getFriends(sid)
+      if (res.data.code === 1) {
+        this.friendsData = res.data.data
+        this.$apply()
+      }
+    }
+    getFriends(sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/friend`,
+            data: {
+              sid,
+              page: 1
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res)
+          } else {
+            this.$parent._showModal('加载失败')
+          }
+        } catch (error) {
+          console.log(error)
+          this.$parent._showModal('加载失败')
+        }
+      })
+    }
+    onShareAppMessage() {
+      let self = this;
+      return {
+        title: `${this.userInfo.nickName}邀请您猜对联抢红包`,
+        path: 'pages/index?u_id=' + this.userInfo._id,
+        imageUrl: share_img,
+        async success() {
+          let integral = await self.$parent.share({
+            sid: self.sid,
+            _id: self.userInfo._id
+          })
+          self.$invoke('ShareReward', 'show', {
+            sid: self.sid,
+            integral
+          })
+        }
+      }
+    }
+  }
+</script>

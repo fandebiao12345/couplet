@@ -1,0 +1,172 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page{
+    background: #ebebeb;
+  }
+  .integraMethods {
+    .top {
+      padding: 20rpx 20rpx 0 20rpx;
+      background: #fff;
+      .pic {
+        width: 100%;
+      }
+      .text{
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+        .title{
+          height: 46rpx;
+          line-height: 46rpx;
+          color: #ffc50a;
+          font-size: @bigfontsize;
+        }
+        .detail{
+          font-size: @smallfontsize;
+          height: 40rpx;
+          line-height: 40rpx;
+          color: #999999;
+        }
+      }
+    }
+    .center{
+      padding: 0 20rpx;
+      background: #fff;
+      margin-top: 20rpx;
+      .title{
+        height: 100rpx;
+        line-height: 100rpx;
+        color: @red;
+        font-size: @bigfontsize;
+        font-weight: bold;
+      }
+      .list{
+        .list-item{
+          box-sizing: border-box;
+          height: 100rpx;
+          border-top: 1rpx solid #f2f2f2;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .left{
+            .list-item-title{
+              height: 42rpx;
+              line-height: 42rpx;
+              font-size: @middlefontsize;
+            }
+            .list-item-detail{
+              height: 38rpx;
+              line-height: 38rpx;
+              font-size: @smallfontsize;
+              color: #a5a5a5;
+            }
+          }
+          .right{
+            display: flex;
+            justify-content: space-between;
+            width: 156rpx;
+            font-size: @bigfontsize;
+            color: #999999;
+            .icon{
+              width: 28rpx;
+              height: 28rpx;
+            }
+          }
+        }
+      }
+    }
+    .bottom{
+      height: 100rpx;
+      line-height: 100rpx;
+      padding: 0 20rpx;
+      font-size: @smallfontsize;
+      color: #999999;
+      .light{
+        color: #0066cc;
+      }
+    }
+  }
+</style>
+<template>
+  <view class="integraMethods">
+    <view class="top">
+      <image class="pic" mode="widthFix" src="https://mini.0315678.cn/duilianImg/rule.png"></image>
+      <view class="text">
+        <view class="text-item">
+          <view class="title">勤奋的农夫</view>
+          <view class="detail">最多拥有三只陶饭碗</view>
+        </view>
+        <view class="text-item">
+          <view class="title">奋进的绅士</view>
+          <view class="detail">最多拥有三只银饭碗</view>
+        </view>
+        <view class="text-item">
+          <view class="title">任性的土豪</view>
+          <view class="detail">最多拥有三只金饭碗</view>
+        </view>
+      </view>
+    </view>
+    <view class="center">
+      <view class="title">积分奖励规则</view>
+      <view class="list">
+        <view class="list-item">
+          <view class="left">
+            <view class="list-item-tite">签到奖励</view>
+            <view class="list-item-detail">每日获得随机积分</view>
+          </view>
+          <view class="right">
+            <image class="icon"></image>
+            <view class="num">+{{le}}100</view>
+          </view>
+        </view>
+        <view class="list-item">
+          <view class="left">
+            <view class="list-item-tite">发/抢包奖励</view>
+            <view class="list-item-detail">如发出/抢到1.08元，以此例推</view>
+          </view>
+          <view class="right">
+            <image class="icon"></image>
+            <view class="num">+108</view>
+          </view>
+        </view>
+        <view class="list-item">
+          <view class="left">
+            <view class="list-item-tite">分享/转发奖励</view>
+            <view class="list-item-detail">成功推荐给好友使用获得奖励</view>
+          </view>
+          <view class="right">
+            <image class="icon"></image>
+            <view class="num">+20</view>
+          </view>
+        </view>
+   
+      </view>
+    </view>
+    <view class="bottom">
+      更多积分规则，请前往<text @tap="navigate" class="light">常见问题</text>查看
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class IntegraMethods extends wepy.page {
+    config = {
+      navigationBarTitleText: '积分规则'
+    }
+    components = {}
+    mixins = []
+    data = {
+      le: '<'
+    }
+    computed = {}
+    watch = {}
+    methods = {
+      navigate() {
+        this.$navigate('./problems')
+      }
+    }
+    events = {}
+    onLoad(options) {}
+    onReady() {}
+    onShow() {}
+  }
+</script>

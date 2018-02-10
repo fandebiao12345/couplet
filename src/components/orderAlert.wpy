@@ -1,0 +1,148 @@
+<style lang="less">
+@import '../common/style/base.less';
+ .orderAlert{
+   position: fixed;
+   background: rgba(0,0,0,0);
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   z-index: 999;
+   transition: all 0.5s linear;
+   &.active{
+     background: rgba(0,0,0,.7);
+   }
+   .content{
+     position: fixed;
+     height: 500rpx;
+     width: 616rpx;
+     background: #fff;
+     z-index: 1000;
+     border-radius: 20rpx;
+     left: 50%;
+     top: 50%;
+     margin-left: -308rpx;
+     margin-top: -250rpx;
+     transition: all 0.5s linear;
+     transform: translateY(-1000rpx); 
+     &.active{
+       transform: translateY(0); 
+     }
+     .logo{
+       margin: -104rpx auto 0 auto;
+       width: 290rpx;
+       height: 208rpx;
+     }
+     .title{
+       line-height: 66rpx;
+       margin-top: 32rpx;
+       text-align: center;
+       font-size: @bigfontsize;
+       padding: 0 82rpx;
+       text-align: center;
+       box-sizing: border-box;
+     }
+     .goodName{
+       line-height: 66rpx;
+       height: 66rpx;
+       margin: 0 auto;
+       width: 80%;
+       overflow: hidden;
+      text-overflow:ellipsis;
+        white-space: nowrap;
+       color: #000000;
+       text-align: center;
+       font-weight: bold;
+       font-size: @bigfontsize;
+       margin-bottom: 32rpx;
+     }
+     .main{
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       height: 112rpx;
+       line-height: 112rpx;
+       font-size: @bestbigfontsize;
+       background: #fff;
+       .icon{
+        height: 30rpx;
+        width: 30rpx;
+      }
+     }
+     .alert-button{
+       display: flex;
+       justify-content: space-between;
+       padding: 0 35rpx;
+       .button-item{
+         height: 88rpx;
+         width: 260rpx;
+         border-radius: 12rpx;
+         text-align: center;
+         line-height: 88rpx;
+         font-size: @bigfontsize;
+         color: #fff;
+         &.button-cancel{
+           background: #ffc50a;
+         }
+         &.button-confirm{
+           background: @red;
+         }
+       }
+     }
+   }
+ }
+</style>
+<template>
+  <view 
+  @transitionend="handleTransitionend"
+  wx:if="{{show}}" class="orderAlert {{active?'active':''}}">
+    <view class="content {{active?'active':''}}" >
+      <image class="logo" src="../common/image/order-bg.png"></image>
+      <view class="title">订单信息提交后将不可更改请确认是否兑换</view>
+      <view class="goodName">{{good.name}}</view>
+      <view class="alert-button">
+        <view class="button-cancel button-item" @tap="handleReward(0)">我再想想</view>
+        <view class="button-confirm button-item" @tap="handleReward(1))">立即兑换</view>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class OrderAlert extends wepy.component {
+    data = {
+      show: false,
+      active: false,
+      integral: 0,
+      sid: 0,
+      _id: 0,
+      good: {}
+    }
+    methods = {
+      show (options) {
+        const {sid, good} = options
+        this.good = good
+        this.show = true
+        setTimeout(() => {
+          this.active = true
+          this.$apply()
+        })
+      },
+      async handleReward (index) {
+        this.active = false
+        this.$apply()
+        if(index == 1){
+          this.$emit('submit')
+        }
+      },
+      handleTransitionend () {
+        if(this.active === false){
+          this.show = false
+        }
+      }
+    }
+    onLoad () {
+    }
+  }
+</script>

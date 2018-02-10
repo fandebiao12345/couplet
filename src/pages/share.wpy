@@ -1,0 +1,326 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: @red;
+  }
+  .avatar {
+    box-sizing: border-box;
+    width: 144rpx;
+    height: 144rpx;
+    border: 5rpx solid #fec7ba;
+    border-radius: 50%;
+    margin-top: 18rpx;
+    margin-bottom: 42rpx;
+  }
+  .title {
+    line-height: 58rpx;
+    height: 58rpx;
+    color: #f0c28e;
+    font-size: 36rpx;
+  }
+  .two-dimension-wrap {
+    position: relative;
+    margin-top: 45rpx;
+    .two-dimension {
+      width: 500rpx;
+      height: 325rpx;
+    }
+  }
+  .bottom {
+    position: fixed;
+    bottom: 116rpx;
+    left: 0;
+    width: 100%;
+    height: 460rpx;
+    background-image: url('https://mini.0315678.cn/red-packet/img/share-bg.png');
+    background-position: center center;
+    background-size: 100% 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 150rpx;
+    box-sizing: border-box;
+  }
+  .bottom .button {
+    width: 606rpx;
+    height: 90rpx;
+    border-radius: 45rpx;
+    line-height: 90rpx;
+    text-align: center;
+    color: #fff;
+    font-size: 36rpx;
+  }
+  .button-group {
+    background: #1aad19;
+  }
+  .button-friend {
+    background: #d95940;
+    margin-top: 50rpx;
+  }
+  .roll {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44rpx;
+    margin-left: -22rpx;
+    margin-top: -22rpx;
+    height: 44rpx;
+    border-radius: 50%;
+    transition: all 0.5s linear 0.15s;
+    transform: translateX(0) translateY(0) scale(1);
+    z-index: 999;
+    &.active {
+      transform: translateX(-250rpx) translateY(605rpx) scale(1);
+       z-index: 9999;
+    }
+  }
+  .rect {
+    z-index: 999;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44rpx;
+    margin-left: -22rpx;
+    margin-top: -22rpx;
+    height: 44rpx;
+    transition: all 0.5s linear;
+    transform: translateX(0) translateY(0) scale(1);
+    &.active {
+      transform: translateX(250rpx) translateY(605rpx) scale(1);
+      z-index: 9999;
+    }
+  }
+  .tabbar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+  .add {
+      position: fixed;
+      width: 250rpx;
+      height: 116rpx;
+      line-height: 116rpx;
+      text-align: center;
+      font-size: 36rpx;
+      left: 0;
+      bottom: 0;
+      color: @red;
+      opacity: 0;
+      font-weight: bold;
+      z-index: 99999;
+    }
+    .jian {
+      position: fixed;
+      width: 250rpx;
+      height: 116rpx;
+      line-height: 116rpx;
+      text-align: center;
+      font-size: 36rpx;
+      right: 0;
+      bottom: 0;
+      color: @red;
+      opacity: 0;
+      font-weight: bold;
+      z-index: 99999;
+    }
+</style>
+
+
+<template>
+  <view class="container">
+    <image class="avatar" src='{{userInfo.avatarUrl}}'></image>
+    <view class="title">恭喜你</view>
+    <view class="title">包总管红包已生成</view>
+    <view class="two-dimension-wrap">
+      <image id="image" class="two-dimension" src="../common/image/baoxiang-1.png"></image>
+      <repeat for="{{roll}}" key="index" index="index" item="item">
+        <image 
+        wx:if="{{item!==10}}"
+        bindtransitionend="transitionend({{index}})"
+        src="{{'../common/image/jinbi' + index%6 + '.png'}}" class="roll {{item==0?'active': null}}"></image>
+      </repeat>
+      <repeat for="{{rect}}" key="index" index="index" item="item">
+        <image 
+        wx:if="{{item!==10}}"
+        bindtransitionend="Recttransitionend({{index}})"
+        src="{{'../common/image/yuanbao' + index%6 + '.png'}}" class="rect {{item==0?'active': null}}"></image>
+      </repeat>
+    </view>
+    <view class="bottom">
+      <button open-type='share' class="button button-group">转发到微信群</button>
+      <view class="button button-friend" catchtap='handlePic'>生成朋友圈图片</view>
+    </view>
+    <view class="tabbar">
+      <TabBar/>
+    </view>
+    <view class="test">
+      <view class="add" animation="{{animation}}">+{{money * 100}}</view>
+      <view class="jian" animation="{{animation}}">+{{money}}</view>
+    </view>
+    <ShareReward/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import TabBar from '@/components/tabbar'
+  import {baseUrl, mainUrl} from '../config'
+  import ShareReward from '@/components/shareReward'
+  export default class Share extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管-发红包'
+    }
+    components = {
+      TabBar,
+      ShareReward
+    }
+    mixins = []
+    data = {
+      roll: [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6],
+      rect: [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6],
+      animation: null,
+      userInfo: {},
+      sid: 0,
+      rid: 0,
+      share: {},
+      friendPic: '',
+      page: '',
+      money: 0
+
+    }
+    computed = {}
+    watch = {}
+    methods = {
+     async handlePic () {
+        if(!this.friendPic){
+          // let path = await this.getFridendsPic({sid: this.sid, _id: this.rid, page: this.page})
+          let path = await this.getFridendsPic({sid: this.sid, _id: this.rid})
+          this.friendPic = `${mainUrl}${path}`
+          this.$apply()
+        }
+        wx.previewImage({
+          urls: [this.friendPic]
+        })
+      },
+      transitionend (index) {
+        this.roll[index] = 10
+        this.$apply()
+      },
+      Recttransitionend (index) {
+        this.rect[index] = 10
+        this.$apply()
+      }
+    }
+    events = {}
+    active(i) {
+      this.data.roll[i] = 0
+      this.rect[i] = 0
+      this.$apply()
+    }
+    async onLoad(options) {
+      const {
+        rid, path, money
+      } = options
+
+      this.money = money
+      this.rid = rid;
+      let sid = wx.getStorageSync('sid')
+      this.sid = sid
+      this.page = `pages/${path}`
+      let text
+      if(path == 'rob'){
+        text = '对联'
+      }else{
+        text = ''
+      }
+
+      await this.getQrcode({sid, _id: rid})
+      let sharePic = await this.$parent.getSharePic(sid, rid)
+      this.$apply()
+
+      wepy.getStorage({key: 'userInfo'}).then((res) => {
+        this.share.sharePic = mainUrl + sharePic
+        this.share.title = `${JSON.parse(res.data).nickName}发了一个${text}红包,这个红包可以提现到微信`
+        this.share.path = `pages/${path}?scene=${rid}`
+        this.userInfo = JSON.parse(res.data)
+        this.$apply()
+      })
+
+
+
+
+
+      var animation = wx.createAnimation({
+        duration: 3000,
+        timingFunction: 'ease',
+      })
+      animation.opacity(1).translateY(-45).step({
+        duration: 2000
+      })
+      animation.opacity(0).translateY(-90).step()
+      for (let i = 0; i < this.data.roll.length; i++) {
+        setTimeout(() => {
+          this.active(i)
+        }, i * 100);
+      }
+      setTimeout(() => {
+        this.animation = animation.export()
+        this.$apply()
+      }, this.data.roll.length * 100);
+    }
+    onReady() {
+      var query = wx.createSelectorQuery()
+      query.select('#image').boundingClientRect()
+      query.exec(function(res) {
+        console.log(res)
+      })
+    }
+    onShow() {}
+    
+
+    onShareAppMessage () {
+      let self = this
+      return {
+        title: this.share.title,
+        path: this.share.path,
+        imageUrl: this.share.sharePic,
+        async success () {
+          let integral = await self.$parent.share({sid: self.sid, _id: self.rid})
+          self.$invoke('ShareReward', 'show', {sid: self.sid, integral})
+        }
+      }
+    }
+    getQrcode (payload) {
+      return new Promise(async (resolve, reject) => {
+        try{
+          let res = await wepy.request({url: `${baseUrl}redbag/qrcode`, data: payload})
+          if(res.data.code === 1){
+            resolve(res.data.path)
+          }else{
+            this.$parent._showModal(res.data.msg)
+          }
+        }catch(error){
+          console.log(error)
+          this.$parent._showModal('加载失败请重试')
+        }
+      })
+    }
+
+    getFridendsPic (payload) {
+      return new Promise(async (resolve, reject) => {
+        try{
+          let res = await wepy.request({url: `${baseUrl}redbag/shareCf`, data: payload})
+          if(res.data.code === 1){
+            resolve(res.data.path)
+          }else{
+            this.$parent._showModal(res.data.msg)
+          }
+        }catch(error){
+          console.log(error)
+          this.$parent._showModal('加载失败请重试')
+        }
+      })
+    }
+  }
+</script>

@@ -1,0 +1,385 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    .rob {
+      .main {
+        background: @red;
+        justify-content: space-between;
+        height: 786rpx;
+        .top {
+          width: 100%;
+          .text {
+            color: @yellow;
+            height: 38rpx;
+            line-height: 38rpx;
+            font-size: @middlefontsize;
+          }
+          .content {
+            margin-top: 26rpx;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            .content-item {
+              height: 82rpx;
+              width: 82rpx;
+              margin-right: 10rpx;
+              background: @yellow;
+              color: @red;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              border-radius: 12rpx;
+              font-size: 42rpx;
+              font-family: 'KaiTi';
+              &.input {
+                background: @red;
+                border: 2rpx solid @yellow;
+                box-sizing: border-box;
+                color: #fff;
+              }
+              &:last-child {
+                margin: 0;
+              }
+            }
+            .input-item {
+              position: absolute;
+              height: 0;
+              width: 0;
+              z-index: -1;
+              pointer-events: none;
+            }
+          }
+          .tips {
+            line-height: 42rpx;
+            font-size: @smallfontsize;
+            color: #fff;
+            margin-top: 16rpx;
+            letter-spacing: 4rpx;
+            text-align: center;
+            .tips-1 {
+              height: 56rpx;
+              line-height: 56rpx;
+              font-size: @smallfontsize;
+            }
+            .tips-2 {
+              height: 62rpx;
+              line-height: 62rpx;
+              font-size: @bigfontsize;
+            }
+          }
+          .result {
+            width: 360rpx;
+            letter-spacing: 2rpx;
+            text-align: center;
+            margin-top: 24rpx;
+            .text {
+              color: #fff;
+              font-size: @smallfontsize;
+              height: 42rpx;
+              line-height: 42rpx;
+              margin-bottom: 10rpx;
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class="rob">
+    <view class="container main">
+      <view class="container top">
+        <user :redbag.sync="redbag" />
+        <view class="text">发了一个对春联红包，金额随机</view>
+        <view class="content">
+          <view style="width: {{size}}rpx;height: {{size}}rpx" wx:for="{{up}}" class="content-item">{{item}}</view>
+        </view>
+        <!-- 直至上联都会显示 -->
+        <view class="content" wx:if="{{redbag.isgrab || redbag.status.id === 1 || redbag.status.id == 9}}">
+          <view style="width: {{size}}rpx;height: {{size}}rpx" wx:for="{{down}}" class="content-item">{{item}}</view>
+        </view>
+        <from wx:if="{{!redbag.isgrab && redbag.status.id === 0}}" class="content">
+          <input 
+          auto-focus
+          value="{{text}}" bindconfirm="handlesubmit" bindblur="bbb" focus="{{focus}}" maxlength="{{up.length}}" confirm-type="send" bindinput="bindInput" confirm-hold="{{true}}" class="input-item" />          
+          <view style="width: {{size}}rpx;height: {{size}}rpx" wx:for="{{up}}" @tap="setFocus" class="content-item input">{{text[index]}}</view>
+        </from>
+        <view class="tips" wx:if="{{redbag.status.id === 1 && !redbag.isgrab}}">
+          <view class="tips-1">红包竟然被抢完了</view>
+          <view class="tips-2">难道是我来晚了吗</view>
+        </view>
+        <view class="tips" wx:if="{{redbag.status.id == 9 && !redbag.isgrab}}">
+          <view class="tips-1">红包惊竟然过期了</view>
+          <view class="tips-2">难道是我来晚了吗</view>
+        </view>
+        <view wx:if="{{!redbag.isgrab && redbag.status.id === 0}}" class="tips">
+          <view class="tips-1">在方框里写出你的下联</view>
+          <view class="tips-2">接近答案即可拆红包</view>
+        </view>
+        <view wx:if="{{redbag.isgrab}}" class="result">
+          <view class="text">恭喜您抢答正确并获得赏金</view>
+          <resultMoney :money.sync="money" :showTip="showTip" />
+        </view>
+      </view>
+      <navBar/>
+    </view>
+    <listTitle :redbag.sync="redbag" />
+    <repeat for="{{receive}}" key="index" index="index" item="item">
+      <coupletListItem :showAnswer="showAnswer" :item="item" />
+    </repeat>
+    <toast/>
+    <Footer :rid="rid" />
+    <ShareReward/>
+    <integration/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import User from '@/components/user'
+  import NavBar from '@/components/navBar'
+  import ListTitle from '@/components/listTitle'
+  import CoupletListItem from '@/components/coupletListItem'
+  import ResultMoney from '@/components/resultMoney'
+  import Toast from 'wepy-com-toast'
+  import CommonApi from '../mixins/commonApi'
+  import Footer from '../components/footer'
+  import ShareReward from '@/components/shareReward'
+  import Integration from '@/components/integration'
+  import {
+    baseUrl,
+    mainUrl
+  } from '../config'
+  export default class Rob extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管-对联红包',
+      "backgroundColor": "#d95940"
+    }
+    components = {
+      user: User,
+      navBar: NavBar,
+      listTitle: ListTitle,
+      coupletListItem: CoupletListItem,
+      toast: Toast,
+      resultMoney: ResultMoney,
+      Footer,
+      ShareReward,
+      integration: Integration
+    }
+    mixins = [CommonApi]
+    data = {
+      showTip: false, // 组件是否显示那个啥
+      focus: false,
+      text: '',
+      result: false,
+      redbag: {},
+      rid: 0,
+      sid: 0,
+      share: {}
+    }
+    computed = {
+      up() {
+        if (this.redbag.bless) {
+          return this.redbag.bless.up.split('')
+        } else {
+          return []
+        }
+      },
+      down() {
+        if (this.redbag.bless) {
+          return this.redbag.bless.down.split('')
+        } else {
+          return []
+        }
+      },
+      money() {
+        if (!this.redbag.isgrab) {
+          return 0.00
+        } else {
+          let money
+          this.redbag.receive.forEach((item) => {
+            if (item.user._id === this.redbag.uid) {
+              money = (item.grab / 100).toFixed(2)
+            }
+          })
+          return money
+        }
+      },
+      receive() {
+        if (!this.redbag.receive) {
+          return []
+        }
+        return this.redbag.receive.sort((a, b) => {
+          return a.grap - b.grab
+        })
+      },
+      showAnswer() {
+        if (!this.redbag.user) {
+          return false
+        }
+        if (!this.redbag.isgrab && this.redbag.status.id == 0) {
+          return false
+        } else {
+          return true
+        }
+      },
+      size() {
+        switch (this.up.length) {
+          case 7:
+            return 70;
+          case 9:
+            return 60;
+          default:
+            return 80
+        }
+      }
+    }
+    watch = {}
+    methods = {
+      bindInput(e) {
+        this.text = e.detail.value
+      },
+      setFocus() {
+        this.focus = true
+      },
+      bbb() {
+        this.focus = false
+      },
+      aaa() {
+        this.focus = false
+        wx.showLoading();
+        setTimeout(() => {
+          this.result = true
+          this.$apply()
+          wx.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '成功',
+            img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png',
+          });
+        }, 2000);
+      },
+      async handlesubmit() {
+        if (this.text.length !== this.up.length) {
+          return this.$parent._showModal('把格子填满再点击完成哦')
+        }
+        let res = await this._grabPacket(this.sid, this.rid, this.text)
+        this.text = ''
+        this.$apply()
+        let title, img
+        switch (res.data.code) {
+          case -1:
+            title = '你蒙错啦'
+            img = '../common/image/icon-cry.png'
+            break
+          case 1:
+            title = '你蒙对啦'
+            img = '../common/image/icon-happy.png'
+            break
+          case 0:
+            title = '红包被抢完了'
+            img = '../common/image/icon-cry.png'
+            break
+          default:
+            title = '出错啦'
+            img = '../common/image/icon-cry.png'
+            break
+        }
+        this.$invoke('toast', 'show', {
+          title,
+          img
+        })
+        let redbag = await this._getPacketInfo(this.rid, this.sid)
+        this.redbag = redbag
+        this.$apply()
+      }
+    }
+    events = {}
+    async onLoad(options) {
+      const {
+        scene
+      } = options
+      let {
+        sid,
+        userInfo
+      } = await this.$parent.initUser(`./rob`, scene)
+      this.$parent.share({sid, _id: scene})
+
+      this.userInfo = userInfo
+      this.rid = scene
+      this.sid = sid
+      let data = await this.$parent._getReward({
+        sid
+      })
+      if (data.code === 1) {
+        this.$invoke('integration', 'show', {
+          data,
+          sid
+        })
+      }
+      wx.setStorageSync('sid', sid)
+      wx.setStorageSync('userInfo', JSON.stringify(userInfo))
+      let redbag = await this._getPacketInfo(scene, sid)
+      this.redbag = redbag
+      let desc = redbag.type.id === 0 ? '普通' : '对联'
+      this.share.imageUrl = mainUrl + '/' + redbag.share.img
+      this.share.title = redbag.user.nickName + '发个一个' + desc + '红包，这个红包可提现到微信'
+      this.share.path = redbag.type.id == 0 ? `pages/robCommon?scene=${scene}` : `pages/rob?scene=${scene}`
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+    _getPacketInfo(_id, sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/scan`,
+            data: {
+              sid,
+              _id
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.redbag)
+          } else {
+            await this.$parent._isReconnection()
+            this._getPacketInfo(_id, sid)
+          }
+        } catch (error) {
+          console.log(error)
+          await this.$parent._isReconnection()
+          this._getPacketInfo(_id, sid)
+        }
+      })
+    }
+    _grabPacket(sid, _id, downline) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/grab`,
+            data: {
+              sid,
+              _id,
+              downline
+            }
+          })
+          resolve(res)
+        } catch (error) {
+          this._showModal('加载失败')
+        }
+      })
+    }
+    onShareAppMessage() {
+      let self = this
+      return {
+        title: this.share.title,
+        path: this.share.path,
+        imageUrl: this.share.imageUrl,
+        async success () {
+          let integral = await self.$parent.share({sid: self.sid, _id: self.rid})
+          self.$invoke('ShareReward', 'show', {sid: self.sid, integral})
+        }
+      }
+    }
+  }
+</script>

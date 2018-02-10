@@ -1,0 +1,167 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: #faf6f3;
+  }
+  .wrap {
+    margin-top: 40rpx;
+    background: #fff;
+    width: 702rpx;
+    border-radius: 8rpx;
+    box-sizing: border-box;
+    padding: 33rpx 42rpx;
+  }
+  .title {
+    line-height: 80rpx;
+    font-size: 30rpx;
+  }
+  .input {
+    font-size: 64rpx;
+    height: 100rpx;
+    display: flex;
+    border-bottom: 1rpx solid #4a4a4a;
+    align-items: center;
+  }
+  .text {
+    line-height: 130rpx;
+    font-size: 30rpx;
+    color: #9b9b9b;
+  }
+  .shuru {
+    height: 100%;
+    font-size: 50rpx;
+  }
+  .submit {
+    height: 80rpx;
+    line-height: 80rpx;
+    text-align: center;
+    color: #fff;
+    font-size: 36rpx;
+    border-radius: 8rpx;
+    background: #1bac19;
+  }
+  .time {
+    font-size: 24rpx;
+    color: #9b9b9b;
+    line-height: 84rpx;
+    text-align: center;
+  }
+  .text-tips {
+    font-size: 24rpx;
+    color: #9b9b9b;
+    line-height: 40rpx;
+    text-align: center;
+  }
+  .problems {
+    color: #4a90e2;
+    font-size: 24rpx;
+  }
+  .active-blue{
+    color: @red;
+  }
+</style>
+<template>
+  <view class="container">
+    <view class="wrap">
+      <form report-submit="true" bindsubmit='handleSubmit'>
+        <view class="total title">账户余额：
+          <text class="active">{{balance}}</text>元</view>
+        <view class="input">￥
+          <input name="money" placeholder="请输入提现金额"
+           type='number' value="{{value?value:null}}" class="shuru" placeholder-style="font-size: 40rpx"></input>
+        </view>
+        <view class="text">提现到微信钱包，
+          <text class="active-blue" catchtap='onTapTotal'>全部提现</text>
+        </view>
+        <button class="submit" formType="submit">申请提现</button>
+      </form>
+      <view class="time">提现申请成功后1-5个工作日到账</view>
+      <view class="text-tips">余额不足1元暂不支持提现，敬请谅解</view>
+    </view>
+    <view class="time problems" catchtap='onTapGoProblems'>常见问题</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl
+  } from '../config'
+  export default class Balance extends wepy.page {
+    config = {
+      navigationBarTitleText: '余额提现'
+    }
+    components = {}
+    mixins = []
+    data = {
+      userInfo: {},
+      sid: 0,
+      value: 0
+    }
+    computed = {
+      balance() {
+        if (!this.userInfo.money) {
+          return 0
+        } else {
+          let balance = (this.userInfo.money / 100).toFixed(2)
+          return balance
+        }
+      }
+    }
+    watch = {}
+    methods = {
+      async handleSubmit(e) {
+        this.$parent.postForm_id({sid: this.sid, form_id: e.detail.formId})
+        let money = e.detail.value.money
+        if (!Number(money)) {
+          return this.$parent._showModal('请输入正确金额')
+        }
+        let code = await this.$parent._login()
+        let res = await this.getCash({
+          sid: this.sid,
+          code,
+          money: money * 100
+        })
+        wepy.showModal({
+          title: '提示',
+          showCancel: false,
+          content: res.data.msg,
+        }).then(() => {
+          if (res.data.code === 1) {
+            wx.reLaunch({url: './index'})
+          }
+        })
+      },
+      onTapTotal () {
+        this.value = Math.floor((this.userInfo.money / 100))
+      },
+      onTapGoProblems () {
+        wx.navigateTo({
+          url: './problems'
+        })
+      }
+    }
+    events = {}
+    onLoad() {}
+    onReady() {}
+    getCash(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}pay/withdraw`,
+            data: payload
+          })
+          resolve(res)
+        } catch (error) {
+          console.log(error)
+        }
+      })
+    }
+    async onShow() {
+      let sid = wepy.getStorageSync('sid')
+      let userInfo = await this.$parent._getInfo(sid)
+      this.userInfo = userInfo
+      this.sid = sid
+      this.$apply()
+    }
+  }
+</script>

@@ -1,0 +1,447 @@
+<style lang="less">
+  @import './common/style/font.less';
+  @import './common/style/base.less';
+  .container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  button {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    position: relative;
+  }
+  button::after {
+    display: none;
+  }
+  image {
+    display: block;
+  }
+  .layout {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s linear;
+    &.active {
+      background: rgba(0, 0, 0, .7);
+    }
+  }
+  .border-level-0 {
+    border: 4rpx solid #333333;
+  }
+  .border-level-1 {
+    border: 4rpx solid #d65a45;
+  }
+  .border-level-2 {
+    border: 4rpx solid #ffc50a;
+  }
+  .level-0 {
+    background: #333333;
+    color: #fff;
+  }
+  .level-1 {
+    background: #999999;
+    color: #fff;
+  }
+  .level-2 {
+    background: #ffc50a;
+    color: #d65a45;
+  }
+  .placeholder {
+    color: @fonthui;
+  }
+</style>
+
+<script>
+  import wepy from 'wepy'
+  import 'wepy-async-function'
+  import {
+    baseUrl
+  } from './config'
+  export default class extends wepy.app {
+    config = {
+      pages: [
+        'pages/index', // 首页
+        'pages/rob', // 抢对联红包页
+        'pages/mine', // 我的页面
+        'pages/record', // 我的记录
+        'pages/robCommon', // 抢普通红包
+        'pages/recommend', // 推荐好友红包
+        'pages/integration', //积分页
+        'pages/editAddress', // 编辑地址页
+        'pages/rankItegral', //积分排行业
+        'pages/address',
+        'pages/orders', // 我的订单页
+        'pages/share',
+        'pages/author',
+        'pages/shop',
+        'pages/recordCouplet',
+        'pages/recordCommon',
+        'pages/order', // 提交订单页
+        'pages/problems',
+        'pages/balance',
+        'pages/cimelia',
+        'pages/webview',
+        'pages/integralRules', // 如何获得积分
+        'pages/goodDetail',
+        'pages/recordReward', // 积分元宝奖励记录
+        'pages/report',
+        'pages/reportDetail',
+        'pages/rules',
+        'pages/rankCimelia'
+      ],
+      window: {
+        backgroundTextStyle: 'light',
+        navigationBarBackgroundColor: '#db5943',
+        navigationBarTextStyle: 'white'
+      }
+    }
+    globalData = {
+      userInfo: null,
+      code: 0
+    }
+    constructor() {
+      super()
+      this.use('requestfix')
+      this.use('promisify')
+      this.intercept('request', {
+        config(p) {
+          p.method = 'POST'
+          wx.showLoading({
+            title: '加载中',
+            mask: true
+          })
+          return p;
+        },
+        complete(p) {
+          wx.hideLoading()
+          return p
+        }
+      })
+    }
+    onLaunch(e) {
+      wx.showLoading({
+        title: '加载中',
+        mask: true
+      })
+    }
+    onShow(e) {}
+    //  提示用户是否重连
+    _isReconnection() {
+      return new Promise((resolve, reject) => {
+        wx.showModal({
+          title: '出错啦',
+          content: '是否重连',
+          success(e) {
+            if (e.confirm === true) {
+              resolve()
+            }
+          },
+          fail() {
+            reject('用户不想重连')
+          }
+        })
+      })
+    }
+    // 获取code
+    _login() {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.login()
+          if (res.errMsg === "login:ok") {
+            const {
+              code
+            } = res
+            resolve(code)
+          } else {
+            try {
+              await this._isReconnection()
+              this._login()
+            } catch (e) {
+              console.log(e)
+            }
+          }
+        } catch (error) {
+          try {
+            await this._isReconnection()
+            this._login()
+          } catch (e) {
+            console.log(e)
+          }
+        }
+      })
+    }
+    _getUserInfo(page, scene) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.getUserInfo({
+            lang: 'zh_CN'
+          })
+          if (res.errMsg === "getUserInfo:ok") {
+            resolve(res)
+          } else {
+            await this._isReconnection()
+            this._getUserInfo()
+          }
+        } catch (error) {
+          if (error = "getUserInfo:fail auth deny") {
+            wx.redirectTo({
+              url: `./author?page=${page}&scene=${scene}`
+            })
+          } else {
+            await this._isReconnection()
+            this._getUserInfo()
+          }
+        }
+      })
+    }
+    // 初始化用户登录
+    initUser(page, scene) {
+      return new Promise(async(resolve, reject) => {
+        let code = await this._login()
+        let userRes = await this._getUserInfo(page, scene)
+        const {
+          iv,
+          encryptedData
+        } = userRes
+        let {
+          sid
+        } = await this._landing({
+          iv,
+          encryptedData,
+          code
+        })
+        let userInfo = await this._getInfo(sid)
+        resolve({
+          sid,
+          userInfo
+        })
+      })
+    }
+    //登陆奖励
+    _getReward(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/reward/login`,
+            data: { ...payload
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data)
+          } else if (res.data.code === 0) {
+            resolve(res.data)
+          } else {
+            this._showModal(res.data.msg)
+          }
+        } catch (error) {
+          await this._isReconnection()
+          this._getReward(payload)
+        }
+      })
+    }
+    _getInfo(sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/scan`,
+            data: {
+              sid
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.user)
+          } else {
+            console.log(res)
+            await this._isReconnection()
+            this._getInfo(sid)
+          }
+        } catch (error) {
+          await this._isReconnection()
+          this._getInfo(sid)
+        }
+      })
+    }
+    _landing(options) {
+      const {
+        iv,
+        encryptedData,
+        code
+      } = options
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}index/login`,
+            data: {
+              iv,
+              encryptedData,
+              code
+            }
+          })
+          if (res.data.code === 1) {
+            resolve({
+              sid: res.data.sid
+            })
+          } else {
+            await this._isReconnection()
+            let code = await this._login()
+            this._landing({
+              iv,
+              encryptedData,
+              code
+            })
+          }
+        } catch (error) {
+          await this._isReconnection()
+          this._landing({
+            iv,
+            encryptedData,
+            code
+          })
+        }
+      })
+    }
+    showModal(content) {
+      return new Promise((resolve, reject) => {
+        wx.showModal({
+          title: '提示',
+          content,
+          showCancel: false,
+          mask: true,
+          success(e) {
+            if (e.confirm === true) {
+              resolve()
+            }
+          }
+        })
+      })
+    }
+    _showModal(content) {
+      wx.showModal({
+        title: '提示',
+        content,
+        showCancel: false
+      })
+    }
+    showToast(title) {
+      wx.showToast({
+        title
+      })
+    }
+    showModalCancek(content) {
+      return new Promise((resolve, reject) => {
+        wx.showModal({
+          title: '提示',
+          content,
+          success(e) {
+            if (e.confirm === true) {
+              resolve()
+            } else {
+              reject()
+            }
+          },
+          fail() {}
+        })
+      })
+    }
+    share(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/reward/share`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.integral)
+          } else {
+            reject(res.data.msg)
+            // this._showModal(res.data.msg)
+          }
+        } catch (error) {
+          console.log(error)
+          await this._isReconnection()
+          this.share(payload)
+        }
+      })
+    }
+    // 获取基本配置
+    _getConfig(sid) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/init`,
+            data: {
+              sid
+            }
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.data.redbag_config)
+          } else {
+            console.log(res.data.msg)
+            await this.$parent._isReconnection()
+            this._getConfig(sid)
+          }
+        } catch (error) {
+          await this.$parent._isReconnection()
+          this._getConfig(sid)
+          console.log(error)
+        }
+      })
+    }
+    getSharePic(sid, rid) {
+      return new Promise(async(resovle, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}redbag/shareimg`,
+            data: {
+              sid,
+              _id: rid
+            }
+          })
+          if (res.data.code === 1) {
+            resovle(res.data.path)
+          } else if (res.data.code === -1) {
+            reject()
+          }
+        } catch (error) {
+          console.log(error)
+          await this.showModal('加载失败')
+          this._getSharePic(sid, rid)
+        }
+      })
+    }
+    postForm_id(payload) {
+      wepy.request({
+        url: `${baseUrl}pay/formid`,
+        data: payload
+      })
+    }
+    getPoster(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await new wepy.request({
+            url: `${baseUrl}user/qrcode`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.path)
+          } else {
+            this._showModal(res.data.msg)
+          }
+        } catch (error) {
+          this._showModal('网络出错')
+        }
+      })
+    }
+  }
+</script>

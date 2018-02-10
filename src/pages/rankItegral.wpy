@@ -1,0 +1,550 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    height: 100%;
+    background: #fff;
+    .rank {
+      height: 100%;
+      background: @bghui;
+      display: flex;
+      align-items: stretch;
+      flex-direction: column;
+      justify-content: space-between;
+      .part-1 {
+        height: auto;
+        padding-bottom: 24rpx;
+        background: #fff;
+        .userInfo {
+          padding-top: 60rpx;
+          background-image: url('https://mini.0315678.cn/duilianImg/bg.png');
+          background-repeat: no-repeat;
+          background-size: 100%;
+          .avatar {
+            width: 128rpx;
+            height: 128rpx;
+            box-sizing: border-box;
+            border: 4rpx solid #ffc50a;
+            border-radius: 50%;
+            margin: 0 auto;
+          }
+          .info {
+            width: 710rpx;
+            display: flex;
+            height: 42rpx;
+            margin: -21rpx auto;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            .tip {
+              .between();
+              height: 42rpx;
+              box-sizing: border-box;
+              color: #fff;
+              border-radius: 21rpx;
+              font-size: @smallfontsize;
+              .icon {
+                height: 30rpx;
+                width: 30rpx;
+                border-radius: 50%;
+                margin-right: 6rpx;
+              }
+              &.left {
+                background: @red;
+                padding: 0 6rpx;
+              }
+              &.right {
+                background: @otherhui;
+                padding-right: 34rpx;
+                .icon {
+                  margin-left: 6rpx;
+                }
+              }
+            }
+            .detail {
+              height: 30rpx;
+              line-height: 30rpx;
+              font-size: 20rpx;
+              padding: 0 8rpx;
+              border-radius: 4rpx;
+              box-sizing: border-box;
+              width: 120rpx;
+              position: absolute;
+              left: 50%;
+              margin-left: -60rpx;
+              text-align: center;
+              top: 0;
+            }
+          }
+        }
+        .fenshu {
+          height: 102rpx;
+          margin: 62rpx auto 0 auto;
+          width: 720rpx;
+          display: flex;
+          .fenshu-item {
+            flex: 1;
+            height: 102rpx;
+            border-right: 1rpx solid @bghui;
+            position: relative;
+            .last{
+              position: absolute;
+              background: @red;
+              height: 26rpx;
+              line-height: 26rpx;
+              border-radius: 13rpx;
+              padding: 0 12rpx;
+              right: 10rpx;
+              top: 0;
+              font-size: 20rpx;
+              color: #fff;
+            }
+            &:last-child {
+              border: none;
+            }
+            .num {
+              height: 64rpx;
+              line-height: 64rpx;
+              text-align: center;
+              font-size: @bigfontsize;
+              font-weight: bold;
+              
+              &.active {
+                color: #ffc50a;
+              }
+            }
+            .share{
+              height: 64rpx;
+              width: 64rpx;
+              margin: 0 auto;
+            }
+            .text {
+              height: 38rpx;
+              line-height: 38rpx;
+              text-align: center;
+              font-size: @smallfontsize;
+            }
+          }
+        }
+      }
+      .part-2 {
+        height: 800rpx;
+        background: #fff;
+        .title {
+          height: 107rpx;
+          box-sizing: border-box;
+          display: flex;
+          border-bottom: 1rpx solid @bghui;
+          .title-item {
+            height: 106rpx;
+            line-height: 106rpx;
+            flex: 1;
+            text-align: center;
+            font-size: @bigfontsize;
+            position: relative;
+            .line{
+              position: absolute;
+              height: 6rpx;
+              width: 104rpx;
+              background: @red;
+              left: 50%;
+              margin-left: -52rpx;
+              bottom: 18rpx;
+            }
+          }
+        }
+        .content-list {
+          height: 694rpx;
+          width: 100%;
+          .scroll {
+            height: 694rpx;
+            width: 750rpx;
+            .content-list-main {
+              padding: 0 20rpx;
+              .list-item {
+                border-bottom: 1rpx solid @bghui;
+                height: 150rpx;
+                padding: 30rpx 0;
+                padding-left: 16rpx;
+                display: flex;
+                box-sizing: border-box;
+                justify-content: space-between;
+                align-items: stretch;
+                &:last-child {
+                  border: none;
+                }
+                .right {
+                  text-align: right;
+                  font-size: @middlefontsize;
+                  height: 30rpx;
+                  line-height: 30rpx;
+                  color: @fonthui;
+                }
+                .left {
+                  display: flex;
+                  align-items: stretch;
+                  .num {
+                    font-size: 60rpx;
+                    color: #ffb40d;
+                    align-self: center;
+                    min-width: 80rpx;
+                    font-weight: bold;
+                    margin-right: 40rpx;
+                  }
+                  .avatar {
+                    width: 90rpx;
+                    height: 90rpx;
+                    border-radius: 50%;
+                    margin-right: 24rpx;
+                  }
+                  .info {
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                    align-items: stretch;
+                    padding: 5rpx 0;
+                    .userInfo {
+                      display: flex;
+                      .name {
+                        font-size: @middlefontsize;
+                        margin-right: 8rpx;
+                        height: 30rpx;
+                        line-height: 30rpx;
+                        max-width: 230rpx;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                      }
+                      .honor {
+                        height: 30rpx;
+                        line-height: 30rpx;
+                        font-size: 20rpx;
+                        border-radius: 6rpx;
+                        padding: 0 8rpx;
+                      }
+                    }
+                    .money {
+                      height: 30rpx;
+                      display: flex;
+                      align-items: center;
+                      .icon {
+                        height: 28rpx;
+                        width: 28rpx;
+                        margin-right: 14rpx;
+                      }
+                      .num {
+                        font-size: 22rpx;
+                        color: #333;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .alert {
+    line-height: 36rpx;
+    color: #fff;
+    font-size: @smallfontsize;
+    background: @red;
+    width: 616rpx;
+    padding: 130rpx 50rpx 50rpx 50rpx;
+    box-sizing: border-box;
+    border-radius: 12rpx;
+    position: relative;
+    transform: scale(0);
+    transition: all 2s cubic-bezier(.42, .43, .65, 1);
+    &.active {
+      transform: scale(1);
+    }
+    .alert-item {
+      margin-bottom: 40rpx;
+      &:last-child {
+        margin: 0;
+      }
+    }
+    .close {
+      background: #fff;
+      height: 80rpx;
+      width: 80rpx;
+      border-radius: 50%;
+      left: 50%;
+      margin-left: -40rpx;
+      bottom: -120rpx;
+      position: absolute;
+    }
+  }
+</style>
+<template>
+  <view class="rank">
+    <view class="part-1">
+      <view class="userInfo">
+        <image class="avatar border-level-{{userInfo.level.type.id}}" src="{{userInfo.avatarUrl}}"></image>
+        <view class="info">
+          <view class="tip left">
+            <image class="icon" src="{{totalData.user.last.user.avatarUrl}}"></image>
+            <view class="text">{{totalData.user.last.type.str}}获得{{totalData.user.last.integral}}积分</view>
+          </view>
+          <view class="detail level-{{userInfo.level.type.id}}">{{userInfo.level.str}}</view>
+          <view class="tip right">
+            <image src="../common/image/wenhao.png" class="icon"></image>
+            <view class="text" @tap="navigate('./integralRules')">如何获得积分</view>
+          </view>
+        </view>
+      </view>
+      <view class="fenshu">
+        <view class="fenshu-item" @tap="navigateBack">
+          <view class="num active"><view class="last">+{{totalData.user.last.integral}}</view>{{userInfo.integral}}</view>
+          <view class="text">我的积分</view>
+        </view>
+        <view class="fenshu-item">
+          <view class="num">{{totalData.user.rank.all == 0? '未上榜' : totalData.user.rank.all}}</view>
+          <view class="text">全民排行</view>
+        </view>
+        <view class="fenshu-item">
+          <view class="num">{{totalData.user.rank.friend == 0 ? '未上榜' : totalData.user.rank.friend}}</view>
+          <view class="text">好友排行</view>
+        </view>
+        <view class="fenshu-item" @tap="handlegetPost">
+          <image src="../common/image/share.png" class="share"></image src="../common/image/share.png">
+          <view class="text" >分享赚积分</view>
+        </view>
+      </view>
+    </view>
+    <view class="part-2">
+      <view class="title">
+        <view @tap="swiper(0)" class="title-item">全民榜<view class="line" hidden="{{current != 0}}"></view></view>
+        <view @tap="swiper(1)" class="title-item">好友榜<view class="line" hidden="{{current != 1}}"></view></view>
+      </view>
+      <swiper  
+      bindchange="swiperChange"
+      current="{{current}}"
+      class="content-list" style="height: {{scrollHeight}}px">
+        <swiper-item>
+          <scroll-view 
+          bindscrolltolower = "handleTolower(0)"
+          lower-threshold="{{0}}"
+          scroll-y style="height: {{scrollHeight}}px" class="scroll">
+            <view class="content-list-main">
+              <repeat for="{{totalList}}" key="index" index="index" item="item">
+                <view 
+                @tap="handleItem({{item}})"
+                class="list-item">
+                  <view class="left">
+                    <view class="num">{{item.rank}}</view>
+                    <image class="avatar" src="{{item.avatarUrl}}" />
+                    <view class="info">
+                      <view class="userInfo">
+                        <view class="name">{{item.nickName}}</view>
+                        <view class="honor level-{{item.level.type.id}}">{{item.level.str}}</view>
+                      </view>
+                      <view class="money">
+                        <image src="../common/image/mine/integral.png" class="icon"/>
+                        <view class="num">{{item.integral}}</view>
+                      </view>
+                    </view>
+                  </view>
+                  <view class="right">{{item.city}}</view>
+                </view>
+              </repeat>
+            </view>
+          </scroll-view>
+        </swiper-item>
+        <swiper-item>
+          <scroll-view 
+          bindscrolltolower = "handleTolower(1)"
+          scroll-y style="height: {{scrollHeight}}px" class="scroll">
+            <view class="content-list-main">
+              <repeat for="{{friendsList}}" key="index" index="index" item="item">
+                <view 
+                @tap="handleItem({{item}})"
+                class="list-item">
+                  <view class="left">
+                    <view class="num">{{item.rank}}</view>
+                    <image class="avatar" src="{{item.avatarUrl}}" />
+                    <view class="info">
+                      <view class="userInfo">
+                        <view class="name">{{item.nickName}}</view>
+                        <view class="honor level-{{item.level.type.id}}">{{item.level.str}}</view>
+                      </view>
+                      <view class="money">
+                        <image src="../common/image/mine/integral.png" class="icon"/>
+                        <view class="num">{{item.integral}}</view>
+                      </view>
+                    </view>
+                  </view>
+                  <view class="right">{{item.city}}</view>
+                </view>
+              </repeat>
+            </view>
+          </scroll-view>
+        </swiper-item>
+      </swiper>
+    </view>
+    <IntegralAlert/>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl, mainUrl
+  } from '../config'
+  import IntegralAlert from '../components/integralAlert'
+
+  export default class RankItegral extends wepy.page {
+    config = {
+      navigationBarTitleText: '积分榜-排行',
+      "backgroundColor": "#d95940"
+    }
+    components = {
+      IntegralAlert
+    }
+    mixins = []
+    data = {
+      isActive: false,
+      animationData: null,
+      animationData1: null,
+      scrollHeight: null,
+      totalList: [],
+      totalData: {},
+      friendsData: {},
+      userInfo: {},
+      friendsList: [],
+      current: 0,
+      poster: ''
+    }
+    computed = {
+      total_page() {
+        return Math.ceil(this.totalList.length / 10) + 1
+      },
+      friends_page () {
+        return Math.ceil(this.friendsList.length / 10) + 1
+      }
+    }
+    watch = {}
+    methods = {
+      async handleTolower (index) {
+        let payload = {sid: this.sid}
+        let page
+        if(index == 0){
+          page = this.total_page
+          payload.page = page
+          let data = await this._getRankInfo(payload)
+          let totalList = this.totalList
+          if(data.item.length > 0){
+            totalList = this.initList([...totalList, ...data.item])
+            this.totalList = totalList
+            this.totalData = data
+          }else{
+            return wx.showToast({title: '已无更多记录'})
+          }
+        }else{
+          page = this.friends_page
+          payload.type = 2
+          payload.page = page
+          let data = await this._getRankInfo(payload)
+          let friendsList = this.friendsList
+          if(data.item.length > 0){
+            friendsList = this.initList([...friendsList, ...data.item])
+            this.friendsList = friendsList
+            this.friendsData = data
+          }else{
+            return wx.showToast({title: '已无更多记录'})
+          }
+        }
+        this.$apply()
+      },
+      swiperChange (e) {
+        let current = e.detail.current
+        this.current = current
+      },
+      swiper (index) {
+        this.current = index;
+      },
+      async handleItem (item) {
+        let res = await wepy.request({url: `${baseUrl}user/scan`, data: {sid: this.sid, _id: item._id}})
+        this.$invoke('IntegralAlert', 'show', {item: res.data.user})
+      },
+      navigate (url) {
+        wx.navigateTo({
+          url
+        })
+      },
+      async handlegetPost () {
+        let poster
+        console.log(poster)
+        if(!this.poster){
+          poster = mainUrl + await this.$parent.getPoster({sid: this.sid, _id: this.userInfo._id})
+          this.poster = poster
+          this.$apply()
+        }else{
+          poster = this.poster
+        }
+        wx.previewImage({
+          urls: [poster]
+        })
+      },
+      navigateBack () {
+        wx.navigateBack()
+      }
+    }
+    events = {}
+    async onLoad() {
+      this._setScrollHeight()
+      let sid = wepy.getStorageSync('sid')
+      this.userInfo = await this.$parent._getInfo(sid)
+      this.sid = sid
+      let totaldata = await this._getRankInfo({
+        sid
+      })
+      this.totalData = totaldata
+      this.totalList = this.initList(totaldata.item)
+      let friendsData = await this._getRankInfo({
+        sid,
+        type: 2
+      })
+      this.friendsData = friendsData
+      this.friendsList = this.initList(friendsData.item)
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+    _setScrollHeight() {
+      let {
+        windowHeight
+      } = wx.getSystemInfoSync()
+      var query = wx.createSelectorQuery()
+      query.select('.scroll').boundingClientRect((rect) => {
+        const scrollHeight = windowHeight - rect.top
+        this.scrollHeight = scrollHeight
+        this.$apply()
+      }).exec()
+    }
+    _getRankInfo(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}user/rank`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.data)
+          }
+        } catch (error) {}
+      })
+    }
+    initList(arr) {
+      return arr.map((val, index) => {
+        if (index < 9) {
+          val.rank = '0' + (index + 1)
+        } else {
+          val.rank = index + 1
+        }
+        return val
+      })
+    }
+  }
+</script>

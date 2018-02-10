@@ -1,0 +1,440 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    .shop {
+      background: @bghui;
+      .emit {
+        height: 80rpx;
+        background: #fff;
+        padding: 0 25rpx;
+        display: flex;
+        align-items: center;
+        .title {
+          display: flex;
+          flex: 0 0 160rpx;
+          .icon {
+            width: 30rpx;
+            height: 30rpx;
+            margin-right: 6rpx;
+          }
+          .text {
+            font-size: @lowerSmallFontSize;
+            color: #3c3c3c;
+          }
+        }
+        .content {
+          flex: 0 0 540rpx;
+          overflow: hidden;
+          height: 80rpx;
+          white-space: nowrap;
+          .text {
+            height: 80rpx;
+            ;
+            line-height: 80rpx;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #999999;
+            font-size: 24rpx;
+            .light {
+              color: #333333;
+            }
+          }
+        }
+      }
+      .swiper {
+        height: 180rpx;
+        .content {
+          width: 750rpx;
+          height: 180rpx;
+        }
+      }
+      .main-wrap {
+        margin-top: 22rpx;
+        white-space: nowrap;
+        border-bottom: 1rpx solid @bghui;
+        height: 100rpx;
+        box-sizing: border-box;
+        background: #fff;
+        .navBar-item {
+          display: inline-block;
+          padding: 0 22rpx;
+          height: 99rpx;
+          line-height: 99rpx;
+          box-sizing: border-box;
+          font-size: @middlefontsize;
+          background: #fff;
+          color: @fonthui;
+          position: relative;
+          &.active {
+            color: #333;
+          }
+          &.total {
+            padding: 0 22rpx 0 50rpx;
+          }
+          &.total::after {
+            content: '';
+            position: absolute;
+            height: 30rpx;
+            width: 6rpx;
+            background: #ffaa23;
+            left: 0;
+            top: 50%;
+            margin-top: -15rpx;
+            left: 25rpx;
+          }
+        }
+      }
+      .goods {
+        padding: 0 30rpx;
+        display: flex;
+        flex-wrap: wrap;
+        background: #fff;
+        .goods-item {
+          padding: 10rpx 10rpx 0 10rpx;
+          border-bottom: 1rpx solid @bghui;
+          border-right: 1rpx solid @bghui;
+          width: 50%;
+          box-sizing: border-box;
+          &:nth-child(2n) {
+            border-right: none;
+          }
+          .pic {
+            box-sizing: border-box;
+            height: 325rpx;
+            width: 100%;
+          }
+          .title {
+            height: 58rpx;
+            line-height: 58rpx;
+            font-size: @middlefontsize;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .detail {
+            color: @fonthui;
+            height: 80rpx;
+            line-height: 40rpx;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+            font-size: @smallfontsize;
+            padding-right: 26rpx;
+          }
+          .bottom {
+            height: 86rpx;
+            padding-right: 26rpx;
+            .between();
+            .money {
+              display: flex;
+              align-items: center;
+              .icon {
+                height: 24rpx;
+                width: 36rpx;
+                margin-right: 12rpx;
+              }
+              .num {
+                font-size: @smallfontsize;
+                color: #ffb40d;
+              }
+            }
+            .button {
+              height: 40rpx;
+              box-sizing: border-box;
+              border-radius: 20rpx;
+              padding: 0 10rpx;
+              background: @red;
+              text-align: center;
+              font-size: @smallfontsize;
+              line-height: 40rpx;
+              color: #fff;
+              &.over {
+                background: #999999;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .service {
+    position: fixed;
+    right: 20rpx;
+    bottom: 100rpx;
+    width: 120rpx;
+    height: 120rpx;
+  }
+</style>
+<template>
+  <view class="shop">
+    <swiper class="swiper" interval="{{3000}}" autoplay="{{true}}" circular="{{true}}" indicator-dots="{{true}}">
+      <swiper-item wx:key="{{index}}" wx:for="{{shopData.slider}}">
+        <image @tap="handleUrl({{item}})" class="content" src="{{mainUrl + item.img}}"></image>
+      </swiper-item>
+    </swiper>
+    <view class="emit">
+      <view class="title">
+        <image class="icon" src="../common/image/icon-emit.png"></image>
+        <view class="text">好运播报：</view>
+      </view>
+      <swiper autoplay="{{true}}" circular="{{true}}" vertical="{{true}}" class="content">
+        <swiper-item wx:for="{{swiper}}" wx:key="{{index}}">
+          <view class="text" wx:if="{{item.user}}">恭喜{{item.user.nickName}} 用{{item.cimelia * item.number}}枚元宝兑换了 <text class="light">{{item.goods.name}}</text></view>
+          <view class="text" wx:if="else">{{item}}</view>
+        </swiper-item>
+      </swiper>
+    </view>
+    <scroll-view scroll-x class="main-wrap">
+      <view @tap="handleSwitch('全部')" class="navBar-item total {{type=='全部'?'active':''}}">全部</view>
+      <view class="navBar-item {{type.name==item.name?'active':''}}" @tap="handleSwitch({{item}})" wx:key="{{index}}" wx:for="{{shopData.type}}">{{item.name}}</view>
+    </scroll-view>
+    <scroll-view bindscrolltolower="onScrollBottom" id="scroll" scroll-y style="height: {{scrollHeight}}px">
+      <view class="goods">
+        <repeat for="{{goods}}" key="index" index="index" item="item">
+          <view class="goods-item">
+            <image @tap="handlegood({{item}})" class="pic" src="{{mainUrl + item.covet}}"></image>
+            <view class="title">{{item.name}}</view>
+            <view class="detail">{{item.describe}}</view>
+            <view class="bottom">
+              <view class="money">
+                <image class="icon" src="../common/image/icon-yb3.png"></image>
+                <view class="num">{{item.cimelia}}/{{item.unit}}</view>
+              </view>
+              <form
+              bindsubmit="handleBuy({{item}})"
+              report-submit="{{true}}"
+              >
+                <button 
+                hover-class="none"
+                form-type="submit"
+                class="button" wx:if="{{item.stock > 0}}">立即兑换</button>
+                <view wx:else class="button over">售罄</view>
+              </form>
+            </view>
+          </view>
+        </repeat>
+      </view>
+    </scroll-view>
+    <image class="service" src="../common/image/service.png"></image>
+    <button open-type="contact" hover-class="none" class="service"></button>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl,
+    mainUrl,
+    share_img
+  } from '../config'
+  export default class Shop extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管 - 元宝商店',
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTextStyle: 'black'
+    }
+    components = {}
+    mixins = []
+    data = {
+      sid: 0,
+      shopData: {},
+      mainUrl,
+      goods: [],
+      a: {},
+      type: '全部',
+      swiper: [],
+      scrollHeight: 0
+    }
+    computed = {
+      page() {
+        return Math.ceil(this.goods.length / 10) + 1
+      }
+    }
+    watch = {}
+    methods = {
+      handleUrl(item) {
+        if(!item.href){
+          return
+        }
+        this.$navigate('./webview', {
+          url: item.href
+        })
+      },
+      async handleSwitch(item) {
+        this.type = item
+        if (item === '全部') {
+          this.shopData = await this._shopInit({
+            sid: this.sid
+          })
+          let goods = await this.initData(this.shopData.item)
+          this.goods = goods
+        } else {
+          this.goods = []
+          let res = await this._shopInit({
+            type: item._id,
+            sid: this.sid,
+            page: 1
+          })
+          let data = res.item
+          let goods = await this.initData(data)
+          this.goods = goods
+        }
+        this.$apply()
+      },
+      handlegood(item) {
+        this.$navigate('./goodDetail', {
+          playbill: this.mainUrl + item.playbill,
+          good: JSON.stringify(item)
+        })
+      },
+      handleBuy(item, e) {
+        let formId = e.detail.formId
+        this.$parent.postForm_id({sid: this.sid, form_id: formId})
+        this.$navigate('./order', {
+          good: JSON.stringify(item)
+        })
+      }
+    }
+    events = {}
+    async onLoad() {
+      this._setScrollHeight()
+      let self = this
+      let sid = wx.getStorageSync('sid')
+      let redbag_config = await this.$parent._getConfig(sid)
+      wx.connectSocket({
+        url: redbag_config.socket
+      })
+      wx.onSocketOpen(function(res) {
+        wx.onSocketMessage((res) => {
+          let data = JSON.parse(res.data)
+          let swiper = self.swiper
+          if(swiper.length > 5){
+            swiper.shift()
+          }
+          if (data.type == 'new') {
+            self.swiper = [...swiper, data.item]
+            self.$apply()
+          } else {
+            self.swiper = [...swiper, data.text]
+            self.$apply()
+          }
+        })
+      })
+      wx.onSocketClose(() => {
+        wx.connectSocket({
+          url: redbag_config.socket
+        })
+      })
+    }
+    onReady() {
+      let animation = wx.createAnimation()
+    }
+    async onShow() {
+      let sid = wx.getStorageSync('sid')
+      let userInfo = wx.getStorageSync('userInfo')
+      this.sid = sid
+      this.userInfo = JSON.parse(userInfo)
+      this.shopData = await this._shopInit({
+        sid
+      })
+      let goods = await this.initData(this.shopData.item)
+      this.goods = goods
+      this.$apply()
+    }
+    _shopInit(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}shop/init`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.data)
+          } else {
+            this.$parent._showModal(res.data.msg)
+          }
+        } catch (error) {}
+      })
+    }
+    _getShopDetail(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}shop/find`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.data)
+          } else {
+            this.$parent._showModal(res.data.msg)
+          }
+        } catch (error) {}
+      })
+    }
+    async initData(data) {
+      let promises = []
+      data.forEach((item) => {
+        let promise = new Promise(async(resolve, reject) => {
+          let good = await this._getShopDetail({
+            sid: this.sid,
+            _id: item._id
+          })
+          resolve(good)
+        })
+        promises.push(promise)
+      })
+      let goods = await Promise.all(promises)
+      return goods
+    }
+    async onScrollBottom() {
+      let payload = {
+        sid: this.sid
+      }
+      if (this.type._id) {
+        payload._id = this._id
+      }
+      payload.page = this.page
+      let shopData = await this._shopInit(payload)
+      if (!shopData.item.length) {
+        return wx.showToast({
+          title: '已无更多商品'
+        })
+      }
+      this.shopData = shopData
+      let goods = await this.initData(this.shopData.item)
+      this.goods = [...this.goods, ...goods]
+      this.$apply()
+    }
+    _setScrollHeight() {
+      let {
+        windowHeight
+      } = wx.getSystemInfoSync()
+      var query = wx.createSelectorQuery()
+      query.select('#scroll').boundingClientRect((rect) => {
+        const scrollHeight = windowHeight - rect.top
+        this.scrollHeight = scrollHeight
+        console.log(windowHeight, rect.top)
+        this.$apply()
+      }).exec()
+    }
+    onShareAppMessage() {
+      let self = this;
+      return {
+        title: `${this.userInfo.nickName}邀请您猜对联抢红包`,
+        path: 'pages/index?u_id=' + this.userInfo._id,
+        imageUrl: share_img,
+        async success() {
+          let integral = await self.$parent.share({
+            sid: self.sid,
+            _id: self.userInfo._id
+          })
+          self.$invoke('ShareReward', 'show', {
+            sid: self.sid,
+            integral
+          })
+        }
+      }
+    }
+  }
+</script>

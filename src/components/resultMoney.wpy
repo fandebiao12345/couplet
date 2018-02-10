@@ -1,0 +1,46 @@
+<style lang="less">
+@import '../common/style/base.less';
+.resultMoney{
+  .money{
+    text-align: center;
+    color: @yellow;
+    height: 86rpx;
+    line-height: 86rpx;
+    .num{
+      font-size: @bestbigfontsize;
+    }
+    .unit{
+      font-size: @smallfontsize;
+    }
+  }
+  .tip{
+    height: 62rpx;
+    line-height: 62rpx;
+    text-align: center;
+    color: @fonthui;
+    font-size: @smallfontsize;
+  }
+}
+</style>
+<template>
+  <view class="resultMoney">
+    <view class="money">
+      <text class="num">{{money}}</text>
+      <text class="unit">元</text>
+    </view>
+    <view class="tip" wx:if="{{showTip}}">已存入余额，可用于发红包</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class ResultMoney extends wepy.component {
+    props = {
+      money: Number,
+      showTip: {
+        type: Boolean,
+        default: true
+      }
+    }
+  }
+</script>

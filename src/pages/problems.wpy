@@ -1,0 +1,131 @@
+<style lang="less">
+  page {
+    background: #f6f6f6;
+    padding-bottom: 140rpx;
+  }
+  .qa {
+    margin-top: 20rpx;
+    width: 710rpx;
+    box-sizing: border-box;
+    font-size: 30rpx;
+    line-height: 80rpx;
+    border: 2rpx solid #ededed;
+    border-radius: 10rpx;
+    background: #fff;
+  }
+  .question {
+    padding-left: 20rpx;
+    color: #000000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 24rpx;
+  }
+  .icon {
+    width: 30rpx;
+    height: 20rpx;
+  }
+  .answer {
+    padding-left: 20rpx;
+    border-top: 2rpx solid #ededed;
+    color: #999999;
+  }
+  .service{
+    position: fixed;
+    bottom: 20rpx;
+    width: 710rpx;
+    left: 20rpx;
+    height: 90rpx;
+    line-height: 90rpx;
+    background: #1bac19;
+    border-radius: 12rpx;
+    text-align: center;
+    color: #fff;
+    font-size: 36rpx;
+  }
+</style>
+<template>
+  <view class="container">
+    <view class="qa" wx:for="{{list}}" wx:key="{{index}}">
+      <view class="question" catchtap='onTapAn' data-index="{{index}}">
+        <text>{{item.title}}</text>
+        <image class="icon" src="{{item.icon}}"></image>
+      </view>
+      <view class="answer" wx:if="{{item.canShow}}">{{item.content}}</view>
+    </view>
+    <button class="service" open-type="contact">在线客服</button>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class Problems extends wepy.page {
+    config = {
+      navigationBarTitleText: '常见问题'
+    }
+    components = {}
+    mixins = []
+    data = {
+      list: []
+    }
+    computed = {
+      page() {
+        return Math.ceil(this.list.length / 10) + 1
+      }
+    }
+    watch = {}
+    methods = {
+      onTapAn(op) {
+        let index = op.currentTarget.dataset.index;
+        let list = this.data.list;
+        this.data.list[index].canShow = !this.data.list[index].canShow;
+        if (this.data.list[index].icon == '../common/image/arrow-down.png') {
+          this.data.list[index].icon = '../common/image/arrow-up.png'
+        } else {
+          this.data.list[index].icon = '../common/image/arrow-down.png'
+        }
+        this.setData({
+          list: list
+        })
+      }
+    }
+    events = {}
+    async onLoad() {
+      let sid = wepy.getStorageSync('sid')
+      let list = await this._getTotalList({
+        sid
+      })
+    }
+    onReady() {}
+    onShow() {}
+    _getList(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: 'https://redpacket.ubanger.com/wxmini/index/qa',
+            data: payload
+          })
+          if (res.data.code === 1) {
+            resolve(res.data.data)
+          }
+        } catch (error) {}
+      })
+    }
+    _getTotalList(payload) {
+      return new Promise(async(resolve, reject) => {
+        let data = await this._getList({ ...payload,
+          page: this.page
+        })
+        data.item.forEach((item) => {
+          item.icon = '../common/image/arrow-down.png'
+        })
+        this.list = [...this.list, ...data.item]
+        this.$apply()
+        if (this.list.length < data.count) {
+          this._getTotalList(payload)
+        } else {
+          resolve(this.list)
+        }
+      })
+    }
+  }
+</script>

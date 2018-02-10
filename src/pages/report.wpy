@@ -1,0 +1,75 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  /* pages/report/report.wxss */
+page{
+  background: #f1f1f3;
+}
+.title{
+  line-height: 90rpx;
+  height: 74rpx;
+  font-size: 30rpx;
+  padding-left: 30rpx;
+  box-sizing: border-box;
+  width: 100%;
+  color: #8f8f91;
+}
+.content{
+  box-sizing: border-box;
+  border: 1rpx solid #d9d9d9;
+  padding-left: 30rpx;
+  width: 100%;
+  background: #fff;
+}
+.content-item{
+  line-height: 87rpx;
+  color: #010101;
+  font-size: 34rpx;
+  border-bottom: 1rpx solid #dadada;
+}
+.content-item:last-child{
+  border: none;
+}
+</style>
+<template>
+  <view class="container">
+    <view class="title">请选择投诉原因</view>
+    <view class="content">
+      <view wx:for="{{list}}" wx:key="{{index}}"  class="content-item" @tap='navigate({{index}}, {{item}})'>{{item}}</view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class Report extends wepy.page {
+    config = {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#db5943',
+      navigationBarTextStyle: 'white',
+      navigationBarTitleText: '举报'
+    }
+    components = {}
+    mixins = []
+    data = {
+      list: ['谣言反动', '色情暴力', '诱导分享', '恶意欺诈', '其他原因'],
+      rid: ''
+    }
+    computed = {}
+    watch = {}
+    methods = {
+      navigate (index, item) {
+        this.$navigate('./reportDetail', {type: index + 1, rid: this.rid, item})
+      }
+    }
+    events = {}
+    onLoad(options) {
+      const {
+        rid
+      } = options
+      this.rid = rid
+
+  
+    }
+    onReady() {}
+    onShow() {}
+  }
+</script>

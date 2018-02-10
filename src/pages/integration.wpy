@@ -1,0 +1,305 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: @red;
+    height: 100%;
+    .integration {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      box-sizing: border-box;
+      padding-bottom: 46rpx;
+      align-items: center;
+      .top {
+        .userInfo {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding-top: 60rpx;
+          background: url('https://mini.0315678.cn/red-packet/img/bzg-bg.png');
+          background-size: 750rpx;
+          background-position: left top;
+          background-repeat: no-repeat;
+          .avatar {
+            width: 128rpx;
+            height: 128rpx;
+            box-sizing: border-box;
+            border: 5rpx solid #ffc50a;
+            border-radius: 50%;
+            margin: 0 auto;
+          }
+          .rank {
+            height: 30rpx;
+            line-height: 30rpx;
+            padding: 0 8rpx;
+            font-size: 20rpx;
+            text-align: center;
+            border-radius: 4rpx;
+            margin-top: -15rpx;
+          }
+          .name {
+            height: 98rpx;
+            line-height: 98rpx;
+            font-size: @bigfontsize;
+            color: #fff;
+            font-weight: bold;
+          }
+        }
+        .text {
+          height: 130rpx;
+          line-height: 130rpx;
+          font-size: @middlefontsize;
+          color: #fff;
+        }
+        .pic {
+          height: 138rpx;
+          display: flex;
+          justify-content: space-between;
+          width: 594rpx;
+          margin-top: 78rpx;
+          margin-bottom: 58rpx;
+          .image {
+            width: 180rpx;
+          }
+        }
+        .progress {
+          margin-top: 60rpx;
+          width: 600rpx;
+          background: #ffe99d;
+          border-radius: 15rpx;
+          .progress-current {
+            width: 480rpx;
+            background: #ffc501;
+            height: 30rpx;
+            box-sizing: border-box;
+            padding-right: 15rpx;
+            text-align: right;
+            border-radius: 15rpx;
+            font-size: @smallfontsize;
+            color: #fff;
+            line-height: 30rpx;
+            position: relative;
+            .icon {
+              width: 40rpx;
+              height: 40rpx;
+              position: absolute;
+              right: -20rpx;
+              top: 50%;
+              margin-top: -20rpx;
+              border-radius: 50%;
+              background: #e2af01;
+            }
+          }
+        }
+        .detail {
+          margin-top: 10rpx;
+          height: 40rpx;
+          line-height: 40rpx;
+          color: #fff;
+          font-size: @middlefontsize;
+          margin-top: 56rpx;
+          color: #ffe99d;
+          .light {
+            color: #ffc501;
+          }
+        }
+        .toProblems {
+          height: 88rpx;
+          line-height: 88rpx;
+          color: #fff;
+          font-size: @middlefontsize;
+          margin-bottom: 60rpx;
+        }
+        .toRank {
+          height: 62rpx;
+          width: 262rpx;
+          background: #ffc501;
+          line-height: 62rpx;
+          border-radius: 31rpx;
+          color: #fff;
+          text-align: center;
+          font-size: @middlefontsize;
+        }
+        .tips {
+          height: 76rpx;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: @smallfontsize;
+          color: #ffe99d;
+          width: 600rpx;
+          .active {
+            color: #ffc501;
+          }
+        }
+      }
+      .bottom {
+        width: 600rpx;
+        display: flex;
+        .menu-item {
+          height: 102rpx;
+          flex: 1;
+          border-right: 1rpx solid @otherhui;
+          &:last-child {
+            border: none;
+          }
+          .icon {
+            width: 48rpx;
+            height: 48rpx;
+            margin: 8rpx auto 0 auto;
+          }
+          .text {
+            text-align: center;
+            height: 32rpx;
+            margin-top: 14rpx;
+            color: #fff;
+            font-size: @smallfontsize;
+            line-height: 32rpx;
+          }
+        }
+      }
+    }
+  }
+  .content {
+    font-size: @bigfontsize;
+    color: #fff;
+  }
+</style>
+<template>
+  <view class="integration">
+    <view class="top container">
+      <view class="userInfo">
+        <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+        <view class="rank level-{{userInfo.level.type.id}}">{{userInfo.level.str}}</view>
+      </view>
+      <view class="pic">
+        <image class="image" mode="widthFix" wx:for="{{levelPic}}" src="{{item}}" wx:key="{{index}}"></image>
+      </view>
+      <view class="content">您当前拥有{{userInfo.level.level}}个{{text}}</view>
+      <view class="progress">
+        <view style="width: {{progress}}%" class="progress-current">
+          <view class="icon"></view>
+        </view>
+      </view>
+      <view class="tips">
+        <view>0</view>
+        <view><text class="active">{{userInfo.integral}}/</text>{{userInfo.level.next.score}}</view>
+      </view>
+      <view class="detail">距升级到<text class="light">{{userInfo.level.next.str}}</text>还差{{userInfo.level.next.score-userInfo.integral}}分</view>
+      <view @tap="navigate('./recordReward')" class="toProblems">积分奖励记录</view>
+      <view class="toRank" @tap="handleWatchRank">查看积分排行榜</view>
+    </view>
+    <view class="bottom">
+      <view @tap="navigate('./index')" class="menu-item">
+        <image class="icon" src="../common/image/nav-yb.png"></image>
+        <view class="text">发包得元宝</view>
+      </view>
+      <view @tap="navigate('./shop')" class="menu-item">
+        <image class="icon" src="../common/image/nav-shop.png"></image>
+        <view class="text">去元宝商店</view>
+      </view>
+      <button open-type="share" hover-class="none" class="menu-item">
+        <image class="icon" src="../common/image/nav-jf.png"></image>
+        <view class="text">分享赚积分</view>
+      </button>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl,
+    share_img
+  } from '../config'
+  export default class Integration extends wepy.page {
+    config = {
+      navigationBarTitleText: '我的积分',
+      "backgroundColor": "#d95940"
+    }
+    components = {}
+    mixins = []
+    data = {
+      userInfo: {},
+      progress: 0,
+      levelPic: []
+    }
+    computed = {
+      text() {
+        let text
+        if (!this.userInfo.level) {
+          return ''
+        } else {
+          switch (this.userInfo.level.type.id) {
+            case 0:
+              text = '红心'
+              break;
+            case 1:
+              text = '蓝钻'
+              break;
+            case 2:
+              text = '皇冠'
+              break;
+          }
+        }
+        return text
+      }
+    }
+    watch = {}
+    methods = {
+      handleWatchRank() {
+        wx.navigateTo({
+          url: './rankItegral'
+        })
+      },
+      navigate(url) {
+        wx.navigateTo({
+          url
+        })
+      }
+    }
+    events = {}
+    async onLoad() {
+      let sid = wepy.getStorageSync('sid')
+      let userInfo = await this.$parent._getInfo(sid)
+      this.userInfo = userInfo
+      let level = userInfo.level
+      let levelPic = ['../common/image/level-0.png', '../common/image/level-0.png', '../common/image/level-0.png']
+      levelPic = levelPic.map((item) => {
+        return item = `../common/image/level-${level.type.id}.png`
+      })
+      let ladder = level.level
+      levelPic = levelPic.map((item, index) => {
+        if (index < ladder) {
+          return item = `../common/image/level-${level.type.id}-active.png`
+        } else {
+          return item
+        }
+      })
+      this.levelPic = levelPic
+      this.progress = this.userInfo.integral / this.userInfo.level.next.score * 100
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+    onShareAppMessage() {
+      let self = this;
+      return {
+        title: `${this.userInfo.nickName}邀请您猜对联抢红包`,
+        path: 'pages/index?u_id=' + this.userInfo._id,
+        imageUrl: share_img,
+        async success() {
+          let integral = await self.$parent.share({
+            sid: self.sid,
+            _id: self.userInfo._id
+          })
+          self.$invoke('ShareReward', 'show', {
+            sid: self.sid,
+            integral
+          })
+        }
+      }
+    }
+  }
+</script>

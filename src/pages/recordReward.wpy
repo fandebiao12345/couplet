@@ -1,0 +1,149 @@
+  <style lang="less">
+  @import '../common/style/base.less';
+  page{
+    background: #f1f1f1;
+    padding: 20rpx 20rpx 0 20rpx;
+    box-sizing: border-box;
+  }
+  .recordReward{
+    .reward{
+      height: 98rpx;
+      padding: 0 20rpx;
+      border-radius: 8rpx;
+      display: flex;
+      background: #fff;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rpx;
+      .left{
+        .title{
+          height: 42rpx;
+          line-height: 42rpx;
+          font-size: @middlefontsize
+        }
+        .date{
+          height: 30rpx;
+          line-height: 30rpx;
+          font-size: @smallfontsize;
+          color: #999999;
+        }
+      }
+      .right{
+        width: 310rpx;
+        justify-content: space-between;
+        align-items: center;
+        display: flex;
+        .right-item{
+          display: flex;
+          align-items: center;
+          .icon{
+            width: 34rpx;
+            height: 34rpx;
+            margin-right: 4rpx;
+          }
+          .num{
+            font-size: @middlefontsize;
+          }
+        }
+        .cimelia{
+          .num{
+            color: @red;
+          }
+        }
+        .integral{
+          .num{
+            color: #999999;
+          }
+        }
+      }
+    }
+  }
+</style>
+<template>
+  <view class="recordReward">
+    <view class="reward" wx:for="{{rewards}}" wx:key="{{index}}">
+      <view class="left">
+        <view class="title">{{item.type.str}}</view>
+        <view class="date">{{item.date}}</view>
+      </view>
+      <view class="right">
+        <view class="cimelia right-item">
+          <image class="icon" src="../common/image/icon-caifu.png"></image>
+          <view class="num">+{{item.cimelia}}</view>
+        </view>
+        <view class="integral right-item">
+          <image class="icon" src="../common/image/icon-jifen.png"></image>
+          <view class="num">+{{item.integral}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl
+  } from '@/config'
+  import moment from 'moment'
+
+  export default class RecordReward extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管-奖励记录'
+    }
+    components = {}
+    mixins = []
+    data = {
+      rewards: [],
+      sid: 0
+    }
+    computed = {
+      page () {
+        return Math.ceil(this.rewards.length / 10) + 1
+      }
+    }
+    watch = {}
+    methods = {
+    }
+    events = {}
+    async onLoad(options) {
+      let sid = wepy.getStorageSync('sid')
+      let rewards1 = await this.getRewardInfo({sid})
+      let rewards2 = await this.getRewardInfo({sid, page: 2})
+      this.sid = sid
+      this.rewards = [...rewards1, ...rewards2]
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {}
+    async onReachBottom () {
+      console.log(111111)
+      let rewards = await this.getRewardInfo({sid: this.sid, page: this.page})
+      if(rewards.length > 0){
+        this.rewards = [...this.rewards, ...rewards]
+        this.$apply()
+      }else{
+        return wx.showToast({title: '已无更多记录'})
+      }
+    }
+    getRewardInfo (payload) {
+      return new Promise(async (resolve, reject) => {
+        try{
+          let res = await wepy.request({url: `${baseUrl}user/reward`, data: payload})
+          if(res.data.code === 1){
+            resolve(this.initDate(res.data.data.item))
+          }else{
+            this.$parent._showModal(res.data.msg)
+          }
+        }catch(error){
+
+        }
+      })
+    }
+    initDate (arr) {
+      return arr.map((item) => {
+        item.date = moment(item.inTime * 1000).format('YYYY-MM-DD HH:mm:ss')
+        return item
+      })
+    }
+  }
+</script>

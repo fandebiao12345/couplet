@@ -1,0 +1,88 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: #fff;
+    background-image: url('https://mini.0315678.cn/red-packet/img/bg-top.png');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: 750rpx;
+  }
+  .logo {
+    margin-top: 180rpx;
+    width: 272rpx;
+    height: 272rpx;
+  }
+  .title {
+    margin-top: 24rpx;
+    line-height: 66rpx;
+    font-size: 44rpx;
+    color: #333333;
+  }
+  .company {
+    line-height: 50rpx;
+    font-size: 32rpx;
+    color: #999999;
+  }
+  .button {
+    height: 70rpx;
+    width: 256rpx;
+    text-align: center;
+    border: 4rpx solid #4eeaab;
+    line-height: 62rpx;
+    margin-top: 192rpx;
+    border-radius: 8rpx;
+    color: #29a243;
+    font-size: 32rpx;
+  }
+  .text {
+    line-height: 130rpx;
+    font-size: 30rpx;
+    color: #999999;
+  }
+</style>
+<template>
+  <view class="container">
+    <image src="../common/image/logo.png" class="logo"></image>
+    <view class="title">包总管</view>
+    <view class="company">唐山共享科技有限公司</view>
+    <button class="button" bindgetuserinfo="getUserInfo" open-type="getUserInfo" lang="zh_CN ">登陆</button>
+    <view class="text">同意微信授权,登陆小程序</view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class Author extends wepy.page {
+    config = {
+      navigationBarTitleText: '我推荐的好友(2)'
+    }
+    components = {}
+    mixins = []
+    data = {
+      page: '',
+      scene: ''
+    }
+    computed = {}
+    watch = {}
+    methods = {
+      getUserInfo (res) {
+        if(res.detail.errMsg === 'getUserInfo:ok'){
+          if(this.scene){
+            this.$redirect(this.page, {scene: this.scene})
+          }else{
+            this.$redirect(this.page)
+          }
+        }
+      }
+    }
+    events = {}
+    onLoad(options) {
+      const {page, scene} = options
+      this.page = page
+      if(scene){
+        this.scene = scene
+      }
+    }
+    onReady() {}
+    onShow() {}
+  }
+</script>

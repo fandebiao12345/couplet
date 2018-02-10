@@ -1,0 +1,211 @@
+<style lang="less">
+  @import '../common/style/base.less';
+  page {
+    background: @bghui;
+    .nofriends {
+      padding-top: 150rpx;
+      box-sizing: border-box;
+      .cry {
+        width: 180rpx;
+        height: 180rpx;
+      }
+      .text {
+        height: 100rpx;
+        line-height: 100rpx;
+        font-size: @middlefontsize;
+      }
+    }
+    .order-item {
+      padding: 0 24rpx;
+      background: #fff;
+      margin-bottom: 20rpx;
+      .title {
+        height: 82rpx;
+        border-bottom: 1rpx solid @bghui;
+        .between();
+        color: @fonthui;
+        font-size: @smallfontsize;
+      }
+      .good {
+        height: 233rpx;
+        border-bottom: 1rpx solid @bghui;
+        display: flex;
+        align-items: center;
+        .pic {
+          flex: 0 0 150rpx;
+          width: 150rpx;
+          height: 150rpx;
+          margin-right: 25rpx;
+        }
+        .content {
+          flex: 1;
+          height: 150rpx;
+          .top {
+            .content-title {
+              font-size: @middlefontsize;
+              height: 30rpx;
+              line-height: 30rpx;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+            .content-detail {
+              line-height: 36rpx;
+              margin-top: 10rpx;
+              font-size: @smallfontsize;
+              color: @fonthui;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+            }
+          }
+          .money {
+            padding-left: 42rpx;
+            margin-top: 4rpx;
+            font-size: @middlefontsize;
+            color: @fonthui;
+            background-image: url('https://mini.0315678.cn/duilianImg/icon-yuanbao.png');
+            background-clip: border-box;
+            background-size: auto 22rpx;
+            background-position: 0 center;
+            background-repeat: no-repeat;
+            .num {
+              color: #ffb40d;
+            }
+          }
+        }
+      }
+      .result {
+        .between();
+        height: 110rpx;
+        .button {
+          height: 60rpx;
+          line-height: 58rpx;
+          width: 180rpx;
+          text-align: center;
+          border: 1rpx solid @shenhui;
+          border-radius: 6rpx;
+          font-size: @middlefontsize;
+        }
+        .total {
+          font-size: @middlefontsize;
+          color: @shenhui;
+          .money {
+            padding-left: 44rpx;
+            color: #ffb40d;
+            background-image: url('https://mini.0315678.cn/duilianImg/icon-yuanbao.png');
+            background-clip: border-box;
+            background-size: auto 22rpx;
+            background-position: 0 center;
+            background-repeat: no-repeat;
+          }
+        }
+      }
+    }
+  }
+</style>
+<template>
+  <view class="orders">
+    <view class="nofriends container" wx:if="{{orders.length === 0}}" >
+      <image mode="widthFix" class="cry" src="../common/image/ku.png"></image>
+      <view class="text">暂时还没有兑换记录</view>
+    </view>
+    <view @tap="nextTap({{item}})" wx:for="{{orders}}" wx:key="{{index}}" class="order-item">
+      <view class="title">
+        <view class="left">订单号: {{item._id}}</view>
+        <view class="left">{{item.date}}</view>
+      </view>
+      <view class="good">
+        <image class="pic" src="{{mainUrl + item.goods.covet}}"></image>
+        <view class="content">
+          <view class="top">
+            <view class="content-title">{{item.goods.name}}</view>
+            <view class="content-detail">{{item.goods.describe}}</view>
+          </view>
+          <view class="money"><text class="num">{{item.goods.cimelia}}</text> x {{item.number}}</view>
+        </view>
+      </view>
+      <view class="result">
+        <view class="total">合计：<text class="money">{{item.cimelia}}</text></view>
+        <view class="button">再次兑换</view>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    baseUrl,
+    mainUrl
+  } from '../config'
+  import moment from 'moment'
+  export default class Orders extends wepy.page {
+    config = {
+      navigationBarTitleText: '包总管-兑换记录'
+    }
+    components = {}
+    mixins = []
+    data = {
+      orders: [],
+      mainUrl
+    }
+    computed = {
+      page() {
+        return Math.ceil(this.orders.length / 10) + 1
+      }
+    }
+    watch = {}
+    methods = {
+      nextTap (item) {
+        this.$navigate('./order', {good: JSON.stringify(item.goods)})
+      }
+    }
+    events = {}
+    onLoad() {
+    }
+    onReady() {}
+    async onShow() {
+      let sid = wx.getStorageSync('sid')
+      this.sid = sid
+      this.orders = await this._getOrders({
+        sid
+      })
+      this.$apply()
+    }
+    _getOrders(payload) {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let res = await wepy.request({
+            url: `${baseUrl}shop/order`,
+            data: payload
+          })
+          if (res.data.code === 1) {
+            let data = res.data.data.item.map((item) => {
+              item.date = moment(item.inTime * 1000).format('YYYY-MM-DD HH:mm:ss')
+              return item
+            })
+            resolve(data)
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+    }
+    async onReachBottom() {
+      let orders = await this._getOrders({
+        sid: this.sid,
+        page: this.page
+      })
+      if (orders.length > 0) {
+        this.orders = [...this.orders, ...orders]
+        this.$apply()
+      } else {
+        return wx.showToast({
+          title: '已无更多记录'
+        })
+      }
+    }
+  }
+</script>

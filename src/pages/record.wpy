@@ -1,0 +1,408 @@
+<style lang="less">
+  @import '../common/style/base.less';
+page{
+  background: #faf6f3;
+}
+.tabbar-top{
+  position: fixed;
+  height: 96rpx;
+  line-height: 96rpx;
+  display: flex;
+  font-size: 30rpx;
+  color: #a5a5a5;
+  width: 100%;
+  background: #fff;
+  z-index:100;
+}
+.tabbar-top .tabbar-item{
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+scroll-view{
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left:0;
+  bottom: 98rpx;
+}
+swiper{
+  width: 100%;
+  height: 1206rpx;
+}
+.send,.get{
+  width: 100%;
+  height: 100%;
+}
+
+.tabbar-bottom{
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 98rpx;
+  background: #fff;
+  font-size: 24rpx;
+  color: #9b9b9b;
+  line-height: 156rpx;
+  transition: all 0.3s;
+  justify-content: space-between;
+}
+.tabbar-bottom .tabbar-item{
+  width: 360rpx;
+  text-align: center;
+  background-repeat: no-repeat;
+  background-size: 48rpx 48rpx;
+  background-position: center 12rpx;
+  position: relative;
+}
+.line{
+    position: absolute;
+    width: 120rpx;
+    bottom: 0;
+    left: 50%;
+    height: 6rpx;
+    margin-left: -60rpx;
+    background: @red;
+  }
+.tabbar-bottom .tabbar-left{
+  background-image: url('https://mini.0315678.cn/red-packet/img/tabbar-left-send.png');
+}
+.tabbar-bottom .tabbar-right{
+  background-image: url('https://mini.0315678.cn/red-packet/img/tabbar-right.png');
+}
+.tabbar-bottom .tabbar-send{
+  height: 120rpx;
+  width: 120rpx;
+  position: absolute;
+  top: -60rpx;
+  left: 50%;
+  margin-left: -60rpx;
+  background: #f2cd95;
+  font-size: 60rpx;
+  color: #fff;
+  line-height: 120rpx;
+  text-align: center;
+  border-radius: 50%;
+}
+.userInfo{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.userInfo .avatar{
+  margin-top: 132rpx;
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+}
+.nickName{
+  font-size: 30rpx;
+  height: 112rpx;
+  line-height: 112rpx;
+}
+.name{
+  color: #536c82;
+}
+.detail{
+  width: 540rpx;
+  display: flex;
+}
+.detail .money,.count{
+  flex: 1;
+  text-align: center;
+}
+.detail .text{
+  line-height: 82rpx;
+  height: 82rpx;
+  color: #9b9b9b;
+  font-size: 30rpx;
+  text-align: center;
+}
+.detail .number{
+  height: 52rpx;
+  line-height: 52rpx;
+  color: #343434;
+  font-size: 40rpx;
+  text-align: center;
+}
+.sendList{
+  margin-top: 88rpx;
+  background: #fff;
+  padding: 0 32rpx;
+}
+.send-item{
+  border-bottom: 1rpx solid #dcdcdc;
+  display: flex;
+  justify-content: space-between;
+  font-size: 30rpx;
+  padding: 22rpx 0 26rpx 0;
+}
+.send-item:last-child{
+  border: none;
+}
+.sendList .top{
+  height: 44rpx;
+  line-height: 44rpx;
+  color: #646464;
+}
+.sendList .bottom{
+  height: 40rpx;
+  line-height: 40rpx;
+  color: #7d7d7d;
+}
+.sendList .money .top{
+  color: #333333;
+}
+.sendList .money .bottom{
+  text-align: right;
+}
+.sendList .avatar{
+  width: 78rpx;
+  height: 78rpx;
+  margin-right: 18rpx;
+}
+.getList .date{
+  display: flex;
+}
+
+</style>
+
+<template>
+  <view class="container">
+    <view class="tabbar-top">
+      <view class="tabbar-item tabbar-left" style="color: {{colorSend}}" catchtap='onTapSwitch(0)'>我发出的
+        <view hidden="{{current == 1}}" class="line"></view>
+      </view>
+      <view class="tabbar-item tabbar-right" style="color: {{colorGet}}" catchtap='onTapSwitch(1)'>我收到的
+        <view hidden="{{current == 0}}"  class="line"></view>
+      </view>
+    </view>
+    <swiper bindchange="handleChangeSwiper" current="{{current}}" style="height:{{clientHeight}}px">
+      <swiper-item>
+        <scroll-view 
+        lower-threshold="{{0}}"
+        bindscrolltolower="handletolower(0)"
+        scroll-y="true" bindscrolltoupper="aaa">
+          <view class="send">
+            <view class="userInfo">
+              <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+              <view class="nickName">
+                <text class="name">我</text> 发出的
+              </view>
+              <view class="detail">
+                <view class="money">
+                  <view class="text">金额（元）</view>
+                  <view class="number">{{totalSendMoney}}</view>
+                </view>
+                <view class="count">
+                  <view class="text">数量（个）</view>
+                  <view class="number">{{userInfo.redbag.send.count}}</view>
+                </view>
+              </view>
+            </view>
+            <!-- 发过的记录 -->
+            <view class="sendList">
+              <repeat for="{{sendList}}" key="index" index="index" item="item">
+                <view 
+                @tap="handleSend({{item}})"
+                class="list-item send-item">
+                  <view class="date">
+                    <view class="top">{{item.year}} 年</view>
+                    <view class="bottom">{{item.date}}</view>
+                  </view>
+                  <view class="money">
+                    <view class="top">{{item.send.total}} 元</view>
+                    <view class="bottom">{{item.grab.count}}/{{item.send.count}}</view>
+                  </view>
+                </view>
+              </repeat>
+            </view>
+          </view>
+        </scroll-view>
+      </swiper-item>
+      <swiper-item>
+        <scroll-view 
+        lower-threshold="{{0}}"
+        bindscrolltolower="handletolower(1)"
+        scroll-y="true">
+          <view class="get">
+            <view class="userInfo">
+              <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+              <view class="nickName">
+                <text class="name">我</text> 收到的
+              </view>
+              <view class="detail">
+                <view class="money">
+                  <view class="text">金额（元）</view>
+                  <view class="number">{{totalGrabMoney}}</view>
+                </view>
+                <view class="count">
+                  <view class="text">数量（个）</view>
+                  <view class="number">{{userInfo.redbag.grab.count}}</view>
+                </view>
+              </view>
+            </view>
+            <view class="sendList getList">
+              <repeat for="{{grabList}}" key="index" index="index" item="item">
+                <view 
+                @tap="handleWatch({{item}})"
+                class="list-item send-item">
+                  <view class="date">
+                    <image class="avatar" src="{{item.user.avatarUrl}}"></image>
+                    <view>
+                      <view class="top">{{item.user.nickName}}</view>
+                      <view class="bottom">{{item.date}}</view>
+                    </view>
+                  </view>
+                  <view class="money">
+                    <view class="top">{{item.grabMoney}} 元</view>
+                  </view>
+                </view>
+              </repeat>
+            </view>
+          </view>
+        </scroll-view>
+      </swiper-item>
+    </swiper>
+    <view class="tabbar-bottom">
+      <navigator url="/pages/index" open-type="reLaunch">
+        <view class="tabbar-item tabbar-left">去发一个</view>
+      </navigator>
+      <navigator url="/pages/balance">
+        <view class="tabbar-item tabbar-right">我要提现</view>
+      </navigator>
+    </view>
+    </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import {baseUrl} from '../config'
+  import moment from 'moment'
+  export default class Record extends wepy.page {
+    config = {
+      navigationBarTitleText: '红包记录'
+    }
+    components = {}
+    mixins = []
+    data = {
+      userInfo: {},
+      sendList: [],
+      grabList: [],
+      init: 0,
+      current: 0
+    }
+    computed = {
+      sendPage () {
+        return Math.ceil(this.sendList.length / 10)+ 1
+      },
+      grabPage () {
+        return Math.ceil(this.grabList.length / 10) + 1
+      },
+      totalSendMoney () {
+        if(!this.userInfo.redbag){
+          return null
+        }
+        return (this.userInfo.redbag.send.money / 100).toFixed(2)
+      },
+      totalGrabMoney () {
+        if(!this.userInfo.redbag){
+          return null
+        }
+        return (this.userInfo.redbag.grab.money / 100).toFixed(2)
+      }
+    }
+    watch = {}
+    methods = {
+      aaa(){
+        console.log(1111)
+      },
+      async handletolower (type) {
+        console.log(type)
+        let page = type == 0 ? this.sendPage : this.grabPage
+        let items = await this._getRecord(Number(type), page, this.sid)
+        if(items.length === 0){
+          return wx.showToast({title: '已无更多记录'})
+        }
+       
+        items = this._arrangeList(items)
+        if(type == 0){
+          this.sendList = [...this.sendList, ...items]
+        }else{
+          this.grabList = [...this.grabList, ...items]
+        }
+        
+        this.$apply()
+      },
+      async handleChangeSwiper (e) {
+        let currentId = e.detail.current
+        if(currentId === 1 && this.init === 0){
+          let list = await this._getRecord(1, this.grabPage, this.sid)
+          this.grabList = this._arrangeList(list)
+          this.init = 1
+        }
+        this.current = currentId
+        this.$apply()
+      },
+      handleWatch (item) {
+        let rid = item._id
+        if(item.type.id === 1){
+          this.$navigate('./rob', {scene: rid})
+        }else{
+          this.$navigate('./robCommon', {scene: rid})
+        }
+      },
+      handleSend (item) {
+        let rid = item._id
+        if(item.type.id === 1){
+          this.$navigate('./recordCouplet', {scene: rid})
+        }else{
+          this.$navigate('./recordCommon', {scene: rid})
+        }
+      },
+      onTapSwitch (index) {
+        this.current = index
+      }
+    }
+    events = {}
+    async onLoad() {
+      let userInfo = wx.getStorageSync('userInfo')
+      let sid = wx.getStorageSync('sid')
+      this.userInfo = JSON.parse(userInfo)
+      this.sid = sid
+      let items = await this._getRecord(0, 1, sid)
+      items = this._arrangeList(items)
+      this.sendList = [...this.sendList, ...items]
+      this.$apply()
+    }
+    onReady() {}
+    onShow() {
+    }
+    _getRecord (type, page, sid) {
+      return new Promise(async (resolve, reject) => {
+        try{
+          let res = await wepy.request({url: `${baseUrl}user/redbag`, data: {type, page, sid}})
+          if(res.data.code === 1){
+            resolve(res.data.data.item)
+          }
+        }catch(error){
+
+        }
+      })
+    }
+    _arrangeList (list) {
+      return list.map((item) => {
+        item.send.total = (item.send.total / 100).toFixed(2)
+        item.year = moment(item.inTime * 1000).format('YYYY')
+        item.date = moment(item.inTime * 1000).format('MM月DD日 HH:mm')
+        if(item.receive.grab){
+          item.grabMoney = (item.receive.grab / 100).toFixed(2)
+        }
+        return item
+      })
+    }
+
+  }
+</script>
